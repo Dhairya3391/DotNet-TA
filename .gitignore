@@ -1,0 +1,73 @@
+# .NET build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Ll]og/
+[Ll]ogs/
+[Tt]est[Rr]esults/
+*.log
+*.tlog
+
+# Visual Studio artifacts
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+*.psess
+*.vsp
+*.vspx
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+.nuget/
+
+# Coverage
+*.coverage
+*.coveragexml
+coverage/
+
+# Resharper / Rider
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Generated caches
+*.pidb
+*.svclog
+*.cache
+*.lastcodeanalysissucceeded
+
+# VS profiler
+*.psess
+*.vsp
+*.vspx
+
+# Others
+*.bak
+*.orig
+*.tmp
+*.temp
+*.swp
+*.sln.iml
