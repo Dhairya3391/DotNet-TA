@@ -1,0 +1,175 @@
+@{
+    ViewData["Title"] = "Employee Area";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h2 class="mb-0">@ViewBag.Message</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Employee self-service portal for personal information and tasks.</p>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card border-light">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Employee Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless">
+                                                <tr>
+                                                    <td><strong>Employee ID:</strong></td>
+                                                    <td>@ViewBag.EmployeeId</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Name:</strong></td>
+                                                    <td>@ViewBag.EmployeeName</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Department:</strong></td>
+                                                    <td>@ViewBag.Department</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="alert alert-info">
+                                                <h6>Today's Summary</h6>
+                                                <ul class="mb-0">
+                                                    <li>Tasks Assigned: 5</li>
+                                                    <li>Tasks Completed: 3</li>
+                                                    <li>Meetings: 2</li>
+                                                    <li>Deadlines: 1</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">Quick Actions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-action="JsonDemo" class="list-group-item list-group-item-action">
+                                            <small>View Employee Data (JSON)</small>
+                                        </a>
+                                        <a asp-action="ContentDemo" class="list-group-item list-group-item-action">
+                                            <small>View Dashboard (Text)</small>
+                                        </a>
+                                        <a asp-action="FileDemo" class="list-group-item list-group-item-action">
+                                            <small>Download Pay Slip (PDF)</small>
+                                        </a>
+                                        <a asp-action="RedirectDemo" class="list-group-item list-group-item-action">
+                                            <small>Internal Redirect Demo</small>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <h5>IActionResult Demonstrations</h5>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="card text-center border-success">
+                                        <div class="card-body">
+                                            <h6 class="card-title">View Result</h6>
+                                            <p class="card-text">Renders HTML views</p>
+                                            <small>Current page</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-center border-info">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Content Result</h6>
+                                            <p class="card-text">Plain text content</p>
+                                            <a asp-action="ContentDemo" class="btn btn-info btn-sm">Try</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-center border-warning">
+                                        <div class="card-body">
+                                            <h6 class="card-title">JSON Result</h6>
+                                            <p class="card-text">Structured data</p>
+                                            <a asp-action="JsonDemo" class="btn btn-warning btn-sm">Try</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-center border-primary">
+                                        <div class="card-body">
+                                            <h6 class="card-title">File Result</h6>
+                                            <p class="card-text">File downloads</p>
+                                            <a asp-action="FileDemo" class="btn btn-primary btn-sm">Try</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <h5>Status Code Examples</h5>
+                            <div class="btn-group" role="group">
+                                <a asp-action="StatusCodeDemo" class="btn btn-success">200 OK</a>
+                                <a asp-action="NotFoundDemo" class="btn btn-warning">404 Not Found</a>
+                                <a asp-action="PaymentRequiredDemo" class="btn btn-info">402 Payment Required</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light mt-4">
+                        <h5>Employee Area Capabilities</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Personal Information</h6>
+                                <ul>
+                                    <li>View profile details</li>
+                                    <li>Download pay slips</li>
+                                    <li>Update personal data</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Task Management</h6>
+                                <ul>
+                                    <li>View assigned tasks</li>
+                                    <li>Update task status</li>
+                                    <li>Track progress</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Reports & Data</h6>
+                                <ul>
+                                    <li>Performance metrics</li>
+                                    <li>Attendance records</li>
+                                    <li>Export data (JSON/CSV)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a asp-area="Admin" asp-controller="Admin" asp-action="Index" class="btn btn-outline-danger me-2">Admin Area</a>
+                        <a asp-area="Manager" asp-controller="Manager" asp-action="Index" class="btn btn-outline-success me-2">Manager Area</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Main Site</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

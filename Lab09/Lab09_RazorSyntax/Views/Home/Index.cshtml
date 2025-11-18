@@ -1,0 +1,119 @@
+﻿@{
+    ViewData["Title"] = "Lab 9 - Razor Syntax and Data Transfer";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Lab 9: Razor Syntax and Data Transfer</h1>
+    <p>ASP.NET Core MVC - Demonstrating Razor syntax, ViewBag, ViewData, and TempData</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Lab 9 Demonstrations</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Razor Syntax Examples</h5>
+                            <div class="list-group">
+                                <a asp-action="TableOfFive" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">Table of Five</h6>
+                                    <p class="mb-1">Demonstrates Razor syntax with loops, expressions, and mixed HTML/code</p>
+                                    <small>Features: for loops, expressions, formatted output</small>
+                                </a>
+                                <a asp-action="StudentSPI" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">Student SPI Table</h6>
+                                    <p class="mb-1">Complex Razor syntax with student data, calculations, and conditional styling</p>
+                                    <small>Features: foreach loops, LINQ, conditional logic, Bootstrap styling</small>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Data Transfer Methods</h5>
+                            <div class="list-group">
+                                <a asp-action="ViewBagDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">ViewBag Demo</h6>
+                                    <p class="mb-1">Using ViewBag to pass data from Controller to View</p>
+                                    <small>Features: Dynamic properties, no type casting required</small>
+                                </a>
+                                <a asp-action="ViewDataDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">ViewData Demo</h6>
+                                    <p class="mb-1">Using ViewData dictionary for data transfer</p>
+                                    <small>Features: String keys, type casting required</small>
+                                </a>
+                                <a asp-action="SetTempData" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">TempData Demo</h6>
+                                    <p class="mb-1">Demonstrating TempData persistence across redirects</p>
+                                    <small>Features: Cross-redirect data, session-based storage</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Key Concepts Covered</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Razor Syntax</h6>
+                            <ul>
+                                <li>Code blocks (@@{ ... })</li>
+                                <li>Expressions (@@variable)</li>
+                                <li>Control structures (@@if, @@for, @@foreach)</li>
+                                <li>Mixed HTML and code</li>
+                                <li>Comments (@@* ... @@*)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>ViewBag</h6>
+                            <ul>
+                                <li>Dynamic properties</li>
+                                <li>Runtime flexibility</li>
+                                <li>No type safety</li>
+                                <li>Request-scoped data</li>
+                                <li>Simple syntax</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>ViewData & TempData</h6>
+                            <ul>
+                                <li>Dictionary-based storage</li>
+                                <li>Type casting required</li>
+                                <li>String keys</li>
+                                <li>ViewData: single request</li>
+                                <li>TempData: across redirects</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="alert alert-light">
+        <h5>Learning Objectives</h5>
+        <p>After completing this lab, students should understand:</p>
+        <ul>
+            <li>How to write Razor syntax for dynamic content generation</li>
+            <li>Differences between ViewBag, ViewData, and TempData</li>
+            <li>When to use each data transfer method</li>
+            <li>How to pass data from Controller to View effectively</li>
+            <li>Best practices for data transfer in MVC applications</li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,212 @@
+﻿@{
+    ViewData["Title"] = "Lab 12 - CRUD Operations";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Lab 12: CRUD Operations</h1>
+    <p>ASP.NET Core MVC with ADO.NET and Complete CRUD Stored Procedures</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Complete CRUD Operations with Stored Procedures</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">This application demonstrates complete Create, Read, Update, Delete operations using ADO.NET and SQL Server stored procedures.</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Employee Management (Custom Table)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Custom table with 10+ columns demonstrating:</strong></p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul>
+                                                <li>✓ PR_Employee_Insert</li>
+                                                <li>✓ PR_Employee_Update</li>
+                                                <li>✓ PR_Employee_Delete</li>
+                                                <li>✓ PR_Employee_SelectAll</li>
+                                                <li>✓ Data validation</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul>
+                                                <li>✓ Error handling</li>
+                                                <li>✓ Soft delete pattern</li>
+                                                <li>✓ Business rules</li>
+                                                <li>✓ Audit trails</li>
+                                                <li>✓ Transaction safety</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
+                                        <a asp-controller="Employee" asp-action="Index" class="btn btn-primary">Manage Employees</a>
+                                        <a asp-controller="Employee" asp-action="Create" class="btn btn-success">Add New Employee</a>
+                                        <a asp-controller="Employee" asp-action="TestCRUD" class="btn btn-outline-info">Test CRUD Operations</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Database Tables</h6>
+                                </div>
+                                <div class="card-body">
+                                    <h6>Core Tables:</h6>
+                                    <ul class="list-unstyled">
+                                        <li>📁 Country (5 records)</li>
+                                        <li>📁 State (10 records)</li>
+                                        <li>📁 City (25 records)</li>
+                                    </ul>
+                                    <hr>
+                                    <h6>Custom Table:</h6>
+                                    <ul class="list-unstyled">
+                                        <li>👤 Employee (8 records)</li>
+                                        <li>EmployeeID, EmployeeCode</li>
+                                        <li>FirstName, LastName</li>
+                                        <li>Email, PhoneNumber</li>
+                                        <li>Department, Position</li>
+                                        <li>Salary, HireDate</li>
+                                        <li>Audit fields</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light mt-4">
+                        <h5>Lab 12 CRUD Requirements Demonstrated</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Create Operations</h6>
+                                <ul>
+                                    <li>Insert new records</li>
+                                    <li>Parameter validation</li>
+                                    <li>Identity value return</li>
+                                    <li>Constraint enforcement</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Read Operations</h6>
+                                <ul>
+                                    <li>Select all records</li>
+                                    <li>Select by primary key</li>
+                                    <li>Search functionality</li>
+                                    <li>Filter capabilities</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Update/Delete Operations</h6>
+                                <ul>
+                                    <li>Update existing records</li>
+                                    <li>Soft delete pattern</li>
+                                    <li>Business rule validation</li>
+                                    <li>Referential integrity</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">Stored Procedures Created</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Country CRUD (3 procedures)</h6>
+                                    <code>
+                                        PR_Country_Insert<br>
+                                        PR_Country_Update<br>
+                                        PR_Country_Delete
+                                    </code>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Employee CRUD (3 procedures)</h6>
+                                    <code>
+                                        PR_Employee_Insert<br>
+                                        PR_Employee_Update<br>
+                                        PR_Employee_Delete
+                                    </code>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>State CRUD (3 procedures)</h6>
+                                    <code>
+                                        PR_State_Insert<br>
+                                        PR_State_Update<br>
+                                        PR_State_Delete
+                                    </code>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>City CRUD (3 procedures)</h6>
+                                    <code>
+                                        PR_City_Insert<br>
+                                        PR_City_Update<br>
+                                        PR_City_Delete
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h5>Database Setup Required</h5>
+                        <p><strong>Before testing:</strong> Please run the SQL scripts in the DatabaseScripts folder:</p>
+                        <ol>
+                            <li><code>01_CreateAddressBookDatabase.sql</code> - Creates database, tables, and sample data</li>
+                            <li><code>02_CreateStoredProcedures.sql</code> - Creates all CRUD stored procedures</li>
+                        </ol>
+                        <p><strong>Documentation:</strong> See <code>StoredProcedures_Explained.md</code> for detailed explanations of all procedures.</p>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">Key Technical Features</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6>ADO.NET Implementation</h6>
+                                    <ul>
+                                        <li>SqlConnection management</li>
+                                        <li>SqlCommand with parameters</li>
+                                        <li>SqlDataAdapter for data</li>
+                                        <li>Proper disposal patterns</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6>Error Handling</h6>
+                                    <ul>
+                                        <li>TRY-CATCH blocks</li>
+                                        <li>SQL exception handling</li>
+                                        <li>User-friendly messages</li>
+                                        <li>Transaction safety</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6>Data Integrity</h6>
+                                    <ul>
+                                        <li>Soft delete pattern</li>
+                                        <li>Business rule validation</li>
+                                        <li>Referential integrity</li>
+                                        <li>Audit trail tracking</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

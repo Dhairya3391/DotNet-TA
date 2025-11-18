@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "TempData Demo";
+}
+
+<div class="text-center">
+    <h1 class="display-4">TempData Demonstration</h1>
+    <p>Understanding TempData data transfer across redirects</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">TempData Values (After Redirect)</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                            <th>Data Type</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr>
+                            <td>TempData["Message"]</td>
+                            <td>@TempData["Message"]</td>
+                            <td>@TempData["Message"]?.GetType().Name</td>
+                            <td>
+                                @if (TempData["Message"] != null)
+                                {
+                                    <span class="badge bg-success">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Consumed/Empty</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TempData["UserName"]</td>
+                            <td>@TempData["UserName"]</td>
+                            <td>@TempData["UserName"]?.GetType().Name</td>
+                            <td>
+                                @if (TempData["UserName"] != null)
+                                {
+                                    <span class="badge bg-success">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Consumed/Empty</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-success">
+                <h5>Welcome, @(TempData["UserName"] ?? "Guest")!</h5>
+                <p>@TempData["Message"]</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">How TempData Works</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>What Just Happened:</h6>
+                    <ol>
+                        <li>You clicked "Set TempData Demo"</li>
+                        <li>Controller action SetTempData() stored values in TempData</li>
+                        <li>Controller redirected to GetTempData() action</li>
+                        <li>TempData values survived the redirect</li>
+                        <li>Values are displayed in this view</li>
+                    </ol>
+                </div>
+                <div class="col-md-6">
+                    <h6>TempData Characteristics:</h6>
+                    <ul>
+                        <li>Stores data temporarily until it's read</li>
+                        <li>Survives across redirects</li>
+                        <li>Uses session state internally</li>
+                        <li>Automatically removed after being read</li>
+                        <li>Keep() method preserves data</li>
+                        <li>Peek() method reads without removing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h5>Test TempData Behavior</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <a asp-action="SetTempData" class="btn btn-success btn-block">Reset TempData</a>
+        </div>
+        <div class="col-md-4">
+            <form method="post" asp-action="RefreshPage">
+                <button type="submit" class="btn btn-warning btn-block">Refresh Page (Data will be consumed)</button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Index" class="btn btn-primary btn-block">Go to Home</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Data Transfer Methods Comparison</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Scope</th>
+                        <th>Type Safety</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ViewBag</td>
+                        <td>Current request only</td>
+                        <td>None (dynamic)</td>
+                        <td>Simple data to same view</td>
+                    </tr>
+                    <tr>
+                        <td>ViewData</td>
+                        <td>Current request only</td>
+                        <td>Requires casting</td>
+                        <td>Simple data to same view</td>
+                    </tr>
+                    <tr class="table-success">
+                        <td>TempData</td>
+                        <td>Until read + redirect</td>
+                        <td>Requires casting</td>
+                        <td>Data across redirects</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a asp-action="Index" class="btn btn-primary">Back to Home</a> |
+    <a asp-action="ViewBagDemo" class="btn btn-outline-primary">ViewBag Demo</a> |
+    <a asp-action="ViewDataDemo" class="btn btn-outline-warning">ViewData Demo</a>
+</div>

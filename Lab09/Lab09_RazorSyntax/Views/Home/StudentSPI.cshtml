@@ -1,0 +1,138 @@
+@{
+    ViewData["Title"] = "Student SPI Table";
+    // Sample student data
+    var students = new[]
+    {
+        new { RollNo = "001", Name = "Rahul Sharma", SPI = 8.5, Semester = 4 },
+        new { RollNo = "002", Name = "Priya Patel", SPI = 9.2, Semester = 4 },
+        new { RollNo = "003", Name = "Amit Kumar", SPI = 7.8, Semester = 4 },
+        new { RollNo = "004", Name = "Sneha Desai", SPI = 8.9, Semester = 4 },
+        new { RollNo = "005", Name = "Vikram Singh", SPI = 7.2, Semester = 4 },
+        new { RollNo = "006", Name = "Neha Gupta", SPI = 9.5, Semester = 4 },
+        new { RollNo = "007", Name = "Rohit Verma", SPI = 8.1, Semester = 4 },
+        new { RollNo = "008", Name = "Anjali Mehta", SPI = 9.8, Semester = 4 }
+    };
+}
+
+<div class="text-center">
+    <h1 class="display-4">Student SPI Table</h1>
+    <p>Semester 4 Student Performance Indicators</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Total Students:</strong> @students.Length
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Average SPI:</strong> @Math.Round(students.Average(s => s.SPI), 2)
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Highest SPI:</strong> @students.Max(s => s.SPI)
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Lowest SPI:</strong> @students.Min(s => s.SPI)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Roll No.</th>
+                <th>Student Name</th>
+                <th>Semester</th>
+                <th>SPI</th>
+                <th>Grade</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.RollNo</td>
+                    <td>@student.Name</td>
+                    <td>@student.Semester</td>
+                    <td>
+                        <span class="badge @{
+                            if (student.SPI >= 9.0) { Write("bg-success"); }
+                            else if (student.SPI >= 8.0) { Write("bg-primary"); }
+                            else if (student.SPI >= 7.0) { Write("bg-warning text-dark"); }
+                            else { Write("bg-danger"); }
+                        }">
+                            @student.SPI
+                        </span>
+                    </td>
+                    <td>
+                        @{
+                            string grade = "";
+                            if (student.SPI >= 9.5) grade = "A+";
+                            else if (student.SPI >= 9.0) grade = "A";
+                            else if (student.SPI >= 8.0) grade = "B+";
+                            else if (student.SPI >= 7.0) grade = "B";
+                            else grade = "C";
+                        }
+                        @grade
+                    </td>
+                    <td>
+                        @if (student.SPI >= 8.0)
+                        {
+                            <span class="text-success">✓ Excellent</span>
+                        }
+                        else if (student.SPI >= 7.0)
+                        {
+                            <span class="text-warning">⚠ Good</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">✗ Needs Improvement</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="container mt-4">
+    <h5>Grade Distribution</h5>
+    <div class="row">
+        @{
+            var gradeGroups = students.GroupBy(s =>
+            {
+                if (s.SPI >= 9.5) return "A+";
+                if (s.SPI >= 9.0) return "A";
+                if (s.SPI >= 8.0) return "B+";
+                if (s.SPI >= 7.0) return "B";
+                return "C";
+            }).OrderBy(g => g.Key);
+        }
+
+        @foreach (var group in gradeGroups)
+        {
+            <div class="col-md-2">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">@group.Key</h5>
+                        <p class="card-text">@group.Count() students</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a asp-action="Index" class="btn btn-primary">Back to Home</a>
+</div>

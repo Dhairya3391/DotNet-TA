@@ -1,0 +1,148 @@
+﻿@{
+    ViewData["Title"] = "Lab 11 - Stored Procedures";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Lab 11: Stored Procedures</h1>
+    <p>ASP.NET Core MVC with ADO.NET and SQL Server Stored Procedures</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">AddressBook Database Operations</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">This application demonstrates ADO.NET integration with stored procedures for database operations.</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Country Operations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li>✓ PR_Country_SelectAll</li>
+                                        <li>✓ PR_Country_SelectByPK</li>
+                                    </ul>
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="Country" asp-action="Index" class="btn btn-success">View Countries</a>
+                                        <a asp-controller="Country" asp-action="TestSelectAll" class="btn btn-outline-success btn-sm">Test SelectAll</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">State Operations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li>✓ PR_State_SelectAll</li>
+                                        <li>✓ PR_State_SelectByPK</li>
+                                        <li>✓ PR_State_SelectWithCityCount</li>
+                                    </ul>
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="State" asp-action="Index" class="btn btn-info">View States</a>
+                                        <a asp-controller="State" asp-action="StatesWithCityCount" class="btn btn-outline-info btn-sm">States with City Count</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0">City Operations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li>✓ PR_City_SelectAll</li>
+                                        <li>✓ PR_City_SelectByPK</li>
+                                        <li>✓ PR_City_SelectByName</li>
+                                        <li>✓ PR_City_SelectByState</li>
+                                    </ul>
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="City" asp-action="Index" class="btn btn-warning">View Cities</a>
+                                        <a asp-controller="City" asp-action="Search" class="btn btn-outline-warning btn-sm">Search Cities</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light mt-4">
+                        <h5>Lab 11 Requirements Demonstrated</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Basic Operations</h6>
+                                <ul>
+                                    <li>SelectAll procedures for all tables</li>
+                                    <li>SelectByPK procedures for all tables</li>
+                                    <li>ADO.NET integration</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Advanced Features</h6>
+                                <ul>
+                                    <li>Filter by city name</li>
+                                    <li>Display cities by state</li>
+                                    <li>States with city count</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Technical Implementation</h6>
+                                <ul>
+                                    <li>Repository pattern</li>
+                                    <li>Dependency injection</li>
+                                    <li>SQL Server integration</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">Quick Test Links</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Testing SelectAll Procedures</h6>
+                                    <div class="btn-group-vertical d-grid gap-1" role="group">
+                                        <a href="/Country/TestSelectAll" class="btn btn-outline-primary btn-sm">Country SelectAll</a>
+                                        <a href="/State/TestSelectAll" class="btn btn-outline-primary btn-sm">State SelectAll</a>
+                                        <a href="/City/TestSelectAll" class="btn btn-outline-primary btn-sm">City SelectAll</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Testing SelectByPK Procedures</h6>
+                                    <div class="btn-group-vertical d-grid gap-1" role="group">
+                                        <a href="/Country/TestSelectByPK/1" class="btn btn-outline-success btn-sm">Country SelectByPK</a>
+                                        <a href="/State/TestSelectByPK/1" class="btn btn-outline-success btn-sm">State SelectByPK</a>
+                                        <a href="/City/TestSelectByPK/1" class="btn btn-outline-success btn-sm">City SelectByPK</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h5>Database Setup Required</h5>
+                        <p><strong>Before testing:</strong> Please run the SQL scripts in the DatabaseScripts folder:</p>
+                        <ol>
+                            <li><code>01_CreateAddressBookDatabase.sql</code> - Creates database and sample data</li>
+                            <li><code>02_CreateStoredProcedures.sql</code> - Creates all stored procedures</li>
+                        </ol>
+                        <p>See README.md for detailed setup instructions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Lab 10 - Areas and IActionResult";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Lab 10: Areas and IActionResult</h1>
+    <p>ASP.NET Core MVC - Demonstrating Areas and different IActionResult types</p>
+</div>
+
+@if (ViewBag.RedirectMessage != null)
+{
+    <div class="container mt-3">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong>Redirect Message:</strong> @ViewBag.RedirectMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Areas Navigation</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0">Admin Area</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Full administrative access with all IActionResult demonstrations</p>
+                                    <ul class="list-unstyled">
+                                        <li>✓ Content Results</li>
+                                        <li>✓ JSON Data</li>
+                                        <li>✓ File Downloads</li>
+                                        <li>✓ Redirect Actions</li>
+                                        <li>✓ Status Codes</li>
+                                    </ul>
+                                    <a asp-area="Admin" asp-controller="Admin" asp-action="Index" class="btn btn-danger w-100">Enter Admin Area</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Manager Area</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Team management with project oversight capabilities</p>
+                                    <ul class="list-unstyled">
+                                        <li>✓ Team Statistics</li>
+                                        <li>✓ Project Management</li>
+                                        <li>✓ CSV Reports</li>
+                                        <li>✓ Cross-area Navigation</li>
+                                        <li>✓ Performance Metrics</li>
+                                    </ul>
+                                    <a asp-area="Manager" asp-controller="Manager" asp-action="Index" class="btn btn-success w-100">Enter Manager Area</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">Employee Area</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Self-service portal for personal information and tasks</p>
+                                    <ul class="list-unstyled">
+                                        <li>✓ Personal Dashboard</li>
+                                        <li>✓ Task Management</li>
+                                        <li>✓ Pay Slip Downloads</li>
+                                        <li>✓ Performance Data</li>
+                                        <li>✓ Attendance Records</li>
+                                    </ul>
+                                    <a asp-area="Employee" asp-controller="Employee" asp-action="Index" class="btn btn-info w-100">Enter Employee Area</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">IActionResult Types Demonstrated</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Content Results</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>ViewResult</strong></td>
+                                    <td>Renders Razor views with HTML</td>
+                                    <td><code>return View();</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ContentResult</strong></td>
+                                    <td>Returns raw content (HTML, XML, text)</td>
+                                    <td><code>return Content("text");</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>JsonResult</strong></td>
+                                    <td>Returns JSON formatted data</td>
+                                    <td><code>return Json(object);</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FileResult</strong></td>
+                                    <td>Returns file downloads</td>
+                                    <td><code>return File(bytes, contentType);</code></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Navigation & Status Results</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>RedirectResult</strong></td>
+                                    <td>Redirects to external URL</td>
+                                    <td><code>return Redirect(url);</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>RedirectToAction</strong></td>
+                                    <td>Redirects to action method</td>
+                                    <td><code>return RedirectToAction("Action");</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>StatusCodeResult</strong></td>
+                                    <td>Returns HTTP status code</td>
+                                    <td><code>return StatusCode(200);</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>NotFoundResult</strong></td>
+                                    <td>Returns 404 Not Found</td>
+                                    <td><code>return NotFound();</code></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="alert alert-light">
+        <h5>Key Concepts Covered</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <h6>Areas</h6>
+                <ul>
+                    <li>Logical grouping of related functionality</li>
+                    <li>Separate folder structure</li>
+                    <li>Area-specific routing</li>
+                    <li>Independent controllers and views</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6>IActionResult Interface</h6>
+                <ul>
+                    <li>Standard return type for actions</li>
+                    <li>Multiple result types supported</li>
+                    <li>Flexible response handling</li>
+                    <li>HTTP protocol compliance</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6>Routing</h6>
+                <ul>
+                    <li>Area-aware route templates</li>
+                    <li>Convention-based routing</li>
+                    <li>Link generation with tag helpers</li>
+                    <li>Cross-area navigation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

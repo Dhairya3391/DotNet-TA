@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "Table of Five";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Table of Five</h1>
+    <p>Demonstration of Razor syntax using loops and expressions</p>
+</div>
+
+<div class="container mt-4">
+    <h3>Multiplication Table of 5</h3>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Multiplier</th>
+                <th>Expression</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 1; i <= 10; i++)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>5 × @i</td>
+                    <td><strong>@(5 * i)</strong></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="container mt-4">
+    <h3>Razor Syntax Examples</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Single Block Expressions</h5>
+            <ul>
+                <li>Current Date: @DateTime.Now.ToShortDateString()</li>
+                <li>Random Number: @(new Random().Next(1, 100))</li>
+                <li>String Length: @("Hello World".Length)</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h5>Mixed HTML and Code</h5>
+            <ul>
+                @for (int j = 1; j <= 5; j++)
+                {
+                    <li>Item @j: @(j * j) squared</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a asp-action="Index" class="btn btn-primary">Back to Home</a>
+</div>

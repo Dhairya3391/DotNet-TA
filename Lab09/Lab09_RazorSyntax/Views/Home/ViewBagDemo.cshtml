@@ -1,0 +1,122 @@
+@{
+    ViewData["Title"] = "ViewBag Demo";
+}
+
+<div class="text-center">
+    <h1 class="display-4">ViewBag Demonstration</h1>
+    <p>Understanding ViewBag data transfer in ASP.NET Core MVC</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">ViewBag Properties</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                            <th>Data Type</th>
+                        </tr>
+                        <tr>
+                            <td>ViewBag.Message</td>
+                            <td>@ViewBag.Message</td>
+                            <td>@ViewBag.Message?.GetType().Name</td>
+                        </tr>
+                        <tr>
+                            <td>ViewBag.CurrentTime</td>
+                            <td>@ViewBag.CurrentTime</td>
+                            <td>@ViewBag.CurrentTime?.GetType().Name</td>
+                        </tr>
+                        <tr>
+                            <td>ViewBag.Student.Name</td>
+                            <td>@ViewBag.Student.Name</td>
+                            <td>String</td>
+                        </tr>
+                        <tr>
+                            <td>ViewBag.Student.Age</td>
+                            <td>@ViewBag.Student.Age</td>
+                            <td>@ViewBag.Student.Age?.GetType().Name</td>
+                        </tr>
+                        <tr>
+                            <td>ViewBag.Student.Grade</td>
+                            <td>@ViewBag.Student.Grade</td>
+                            <td>String</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Student Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><strong>Name:</strong> @ViewBag.Student.Name</li>
+                        <li><strong>Age:</strong> @ViewBag.Student.Age years</li>
+                        <li><strong>Grade:</strong>
+                            <span class="badge bg-success">@ViewBag.Student.Grade</span>
+                        </li>
+                        <li><strong>Status:</strong>
+                            @{
+                                if (ViewBag.Student.Grade == "A")
+                                {
+                                    <span class="text-success">Excellent Performance</span>
+                                }
+                                else
+                                {
+                                    <span class="text-warning">Good Performance</span>
+                                }
+                            }
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><strong>Message:</strong> @ViewBag.Message</li>
+                        <li><strong>Current Time:</strong> @ViewBag.CurrentTime</li>
+                        <li><strong>Formatted Date:</strong> @ViewBag.CurrentTime.ToString("dd-MM-yyyy")</li>
+                        <li><strong>Formatted Time:</strong> @ViewBag.CurrentTime.ToString("HH:mm:ss")</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="alert alert-info">
+        <h5>About ViewBag</h5>
+        <ul>
+            <li>ViewBag is a dynamic property that allows passing data from Controller to View</li>
+            <li>It uses the dynamic feature of C#</li>
+            <li>ViewBag data is only available for the current request</li>
+            <li>No type safety or compile-time checking</li>
+            <li>Null reference exceptions possible if properties don't exist</li>
+        </ul>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a asp-action="Index" class="btn btn-primary">Back to Home</a> |
+    <a asp-action="ViewDataDemo" class="btn btn-outline-primary">ViewData Demo</a> |
+    <a asp-action="SetTempData" class="btn btn-outline-success">TempData Demo</a>
+</div>

@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Admin Area";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">@ViewBag.Message</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Welcome to the Admin control panel. This area demonstrates various IActionResult types.</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5>IActionResult Demonstrations</h5>
+                            <div class="list-group">
+                                <a asp-action="ContentDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">Content Result</h6>
+                                    <p class="mb-1">Returns raw HTML content</p>
+                                    <small>Content("text/html")</small>
+                                </a>
+                                <a asp-action="JsonDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">JSON Result</h6>
+                                    <p class="mb-1">Returns structured JSON data</p>
+                                    <small>Json(object)</small>
+                                </a>
+                                <a asp-action="FileDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">File Result</h6>
+                                    <p class="mb-1">Downloads a text file report</p>
+                                    <small>File(byte[], "text/plain")</small>
+                                </a>
+                                <a asp-action="RedirectDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">Redirect Result</h6>
+                                    <p class="mb-1">Redirects to Home controller</p>
+                                    <small>RedirectToAction()</small>
+                                </a>
+                                <a asp-action="ExternalRedirectDemo" class="list-group-item list-group-item-action">
+                                    <h6 class="mb-1">External Redirect</h6>
+                                    <p class="mb-1">Redirects to Microsoft docs</p>
+                                    <small>Redirect(url)</small>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Status Code Results</h5>
+                            <div class="list-group">
+                                <a asp-action="StatusCodeDemo" class="list-group-item list-group-item-action list-group-item-success">
+                                    <h6 class="mb-1">200 OK</h6>
+                                    <p class="mb-1">Successful operation</p>
+                                    <small>StatusCode(200)</small>
+                                </a>
+                                <a asp-action="NotFoundDemo" class="list-group-item list-group-item-action list-group-item-warning">
+                                    <h6 class="mb-1">404 Not Found</h6>
+                                    <p class="mb-1">Resource not found</p>
+                                    <small>NotFound()</small>
+                                </a>
+                                <a asp-action="UnauthorizedDemo" class="list-group-item list-group-item-action list-group-item-danger">
+                                    <h6 class="mb-1">401 Unauthorized</h6>
+                                    <p class="mb-1">Authentication required</p>
+                                    <small>Unauthorized()</small>
+                                </a>
+                                <a asp-action="BadRequestDemo" class="list-group-item list-group-item-action list-group-item-info">
+                                    <h6 class="mb-1">400 Bad Request</h6>
+                                    <p class="mb-1">Invalid request</p>
+                                    <small>BadRequest()</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h5>Admin Area Information</h5>
+                        <ul>
+                            <li><strong>Area:</strong> @ViewBag.Area</li>
+                            <li><strong>Controller:</strong> AdminController</li>
+                            <li><strong>Route Pattern:</strong> /Admin/Admin/Action</li>
+                            <li><strong>Access Level:</strong> Full Administrative Access</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4">
+                        <a asp-area="Manager" asp-controller="Manager" asp-action="Index" class="btn btn-outline-primary me-2">Manager Area</a>
+                        <a asp-area="Employee" asp-controller="Employee" asp-action="Index" class="btn btn-outline-success me-2">Employee Area</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Main Site</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
