@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Lab10_AreasIActionResult.Areas.Employee.Controllers
 {
@@ -109,6 +112,41 @@ namespace Lab10_AreasIActionResult.Areas.Employee.Controllers
         public IActionResult PaymentRequiredDemo()
         {
             return StatusCode(402, "Payment required for premium employee features");
+        }
+
+        [HttpGet]
+        public IActionResult Upload()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Upload(IFormFile file)
+        {
+            if (file != null && file.Length > 0)
+            {
+                var fileName = Path.GetFileName(file.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", fileName);
+
+                // Ensure directory exists
+                var directory = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                ViewBag.Message = "File uploaded successfully!";
+            }
+            else
+            {
+                ViewBag.Message = "Please select a file.";
+            }
+            return View();
         }
     }
 }
