@@ -26,35 +26,10 @@ CREATE PROCEDURE usp_Country_Insert
     @NewId INT OUTPUT
 AS
 BEGIN
-    SET NOCOUNT ON;
+    INSERT INTO Country (CountryName, CountryCode, CreatedDate)
+    VALUES (@CountryName, @CountryCode, GETDATE());
 
-    BEGIN TRY
-        -- Check if country already exists
-        IF EXISTS (SELECT 1 FROM Country WHERE CountryName = @CountryName)
-        BEGIN
-            RAISERROR('Country already exists', 16, 1);
-            RETURN -1;
-        END
-
-        -- Insert new country
-        INSERT INTO Country (CountryName, CountryCode, CreatedDate)
-        VALUES (@CountryName, @CountryCode, GETDATE());
-
-        -- Return the new ID
-        SET @NewId = SCOPE_IDENTITY();
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        -- Log error and return error code
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-        DECLARE @ErrorState INT = ERROR_STATE();
-
-        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
-        RETURN -1;
-    END CATCH
+    SET @NewId = SCOPE_IDENTITY();
 END;
 
 -- Insert State
@@ -65,38 +40,10 @@ CREATE PROCEDURE usp_State_Insert
     @NewId INT OUTPUT
 AS
 BEGIN
-    SET NOCOUNT ON;
+    INSERT INTO State (StateName, StateCode, CountryId, CreatedDate)
+    VALUES (@StateName, @StateCode, @CountryId, GETDATE());
 
-    BEGIN TRY
-        -- Validate CountryId
-        IF NOT EXISTS (SELECT 1 FROM Country WHERE CountryId = @CountryId)
-        BEGIN
-            RAISERROR('Invalid CountryId', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check if state already exists for this country
-        IF EXISTS (SELECT 1 FROM State WHERE StateName = @StateName AND CountryId = @CountryId)
-        BEGIN
-            RAISERROR('State already exists for this country', 16, 1);
-            RETURN -1;
-        END
-
-        -- Insert new state
-        INSERT INTO State (StateName, StateCode, CountryId, CreatedDate)
-        VALUES (@StateName, @StateCode, @CountryId, GETDATE());
-
-        -- Return the new ID
-        SET @NewId = SCOPE_IDENTITY();
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    SET @NewId = SCOPE_IDENTITY();
 END;
 
 -- Insert City
@@ -108,38 +55,10 @@ CREATE PROCEDURE usp_City_Insert
     @NewId INT OUTPUT
 AS
 BEGIN
-    SET NOCOUNT ON;
+    INSERT INTO City (CityName, CityCode, StateId, PinCode, CreatedDate)
+    VALUES (@CityName, @CityCode, @StateId, @PinCode, GETDATE());
 
-    BEGIN TRY
-        -- Validate StateId
-        IF NOT EXISTS (SELECT 1 FROM State WHERE StateId = @StateId)
-        BEGIN
-            RAISERROR('Invalid StateId', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check if city already exists for this state
-        IF EXISTS (SELECT 1 FROM City WHERE CityName = @CityName AND StateId = @StateId)
-        BEGIN
-            RAISERROR('City already exists for this state', 16, 1);
-            RETURN -1;
-        END
-
-        -- Insert new city
-        INSERT INTO City (CityName, CityCode, StateId, PinCode, CreatedDate)
-        VALUES (@CityName, @CityCode, @StateId, @PinCode, GETDATE());
-
-        -- Return the new ID
-        SET @NewId = SCOPE_IDENTITY();
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    SET @NewId = SCOPE_IDENTITY();
 END;
 ```
 
@@ -153,38 +72,11 @@ CREATE PROCEDURE usp_Country_Update
     @CountryCode NVARCHAR(10)
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if country exists
-        IF NOT EXISTS (SELECT 1 FROM Country WHERE CountryId = @CountryId)
-        BEGIN
-            RAISERROR('Country not found', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check for duplicate name (excluding current record)
-        IF EXISTS (SELECT 1 FROM Country WHERE CountryName = @CountryName AND CountryId <> @CountryId)
-        BEGIN
-            RAISERROR('Country name already exists', 16, 1);
-            RETURN -1;
-        END
-
-        -- Update country
-        UPDATE Country
-        SET CountryName = @CountryName,
-            CountryCode = @CountryCode,
-            UpdatedDate = GETDATE()
-        WHERE CountryId = @CountryId;
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    UPDATE Country
+    SET CountryName = @CountryName,
+        CountryCode = @CountryCode,
+        UpdatedDate = GETDATE()
+    WHERE CountryId = @CountryId;
 END;
 
 -- Update State
@@ -195,46 +87,12 @@ CREATE PROCEDURE usp_State_Update
     @CountryId INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if state exists
-        IF NOT EXISTS (SELECT 1 FROM State WHERE StateId = @StateId)
-        BEGIN
-            RAISERROR('State not found', 16, 1);
-            RETURN -1;
-        END
-
-        -- Validate CountryId
-        IF NOT EXISTS (SELECT 1 FROM Country WHERE CountryId = @CountryId)
-        BEGIN
-            RAISERROR('Invalid CountryId', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check for duplicate name (excluding current record)
-        IF EXISTS (SELECT 1 FROM State WHERE StateName = @StateName AND CountryId = @CountryId AND StateId <> @StateId)
-        BEGIN
-            RAISERROR('State name already exists for this country', 16, 1);
-            RETURN -1;
-        END
-
-        -- Update state
-        UPDATE State
-        SET StateName = @StateName,
-            StateCode = @StateCode,
-            CountryId = @CountryId,
-            UpdatedDate = GETDATE()
-        WHERE StateId = @StateId;
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    UPDATE State
+    SET StateName = @StateName,
+        StateCode = @StateCode,
+        CountryId = @CountryId,
+        UpdatedDate = GETDATE()
+    WHERE StateId = @StateId;
 END;
 
 -- Update City
@@ -246,47 +104,13 @@ CREATE PROCEDURE usp_City_Update
     @PinCode NVARCHAR(10)
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if city exists
-        IF NOT EXISTS (SELECT 1 FROM City WHERE CityId = @CityId)
-        BEGIN
-            RAISERROR('City not found', 16, 1);
-            RETURN -1;
-        END
-
-        -- Validate StateId
-        IF NOT EXISTS (SELECT 1 FROM State WHERE StateId = @StateId)
-        BEGIN
-            RAISERROR('Invalid StateId', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check for duplicate name (excluding current record)
-        IF EXISTS (SELECT 1 FROM City WHERE CityName = @CityName AND StateId = @StateId AND CityId <> @CityId)
-        BEGIN
-            RAISERROR('City name already exists for this state', 16, 1);
-            RETURN -1;
-        END
-
-        -- Update city
-        UPDATE City
-        SET CityName = @CityName,
-            CityCode = @CityCode,
-            StateId = @StateId,
-            PinCode = @PinCode,
-            UpdatedDate = GETDATE()
-        WHERE CityId = @CityId;
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    UPDATE City
+    SET CityName = @CityName,
+        CityCode = @CityCode,
+        StateId = @StateId,
+        PinCode = @PinCode,
+        UpdatedDate = GETDATE()
+    WHERE CityId = @CityId;
 END;
 ```
 
@@ -298,38 +122,7 @@ CREATE PROCEDURE usp_Country_Delete
     @CountryId INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if country exists
-        IF NOT EXISTS (SELECT 1 FROM Country WHERE CountryId = @CountryId)
-        BEGIN
-            RAISERROR('Country not found', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check if country has associated states
-        IF EXISTS (SELECT 1 FROM State WHERE CountryId = @CountryId)
-        BEGIN
-            RAISERROR('Cannot delete country. Associated states exist.', 16, 1);
-            RETURN -1;
-        END
-
-        -- Delete country (soft delete by setting IsActive flag)
-        UPDATE Country
-        SET IsActive = 0,
-            UpdatedDate = GETDATE(),
-            DeletedDate = GETDATE()
-        WHERE CountryId = @CountryId;
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    DELETE FROM Country WHERE CountryId = @CountryId;
 END;
 
 -- Delete State
@@ -337,38 +130,7 @@ CREATE PROCEDURE usp_State_Delete
     @StateId INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if state exists
-        IF NOT EXISTS (SELECT 1 FROM State WHERE StateId = @StateId)
-        BEGIN
-            RAISERROR('State not found', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check if state has associated cities
-        IF EXISTS (SELECT 1 FROM City WHERE StateId = @StateId)
-        BEGIN
-            RAISERROR('Cannot delete state. Associated cities exist.', 16, 1);
-            RETURN -1;
-        END
-
-        -- Delete state (soft delete)
-        UPDATE State
-        SET IsActive = 0,
-            UpdatedDate = GETDATE(),
-            DeletedDate = GETDATE()
-        WHERE StateId = @StateId;
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    DELETE FROM State WHERE StateId = @StateId;
 END;
 
 -- Delete City
@@ -376,38 +138,7 @@ CREATE PROCEDURE usp_City_Delete
     @CityId INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Check if city exists
-        IF NOT EXISTS (SELECT 1 FROM City WHERE CityId = @CityId)
-        BEGIN
-            RAISERROR('City not found', 16, 1);
-            RETURN -1;
-        END
-
-        -- Check if city has associated records (e.g., addresses, contacts)
-        IF EXISTS (SELECT 1 FROM Address WHERE CityId = @CityId)
-        BEGIN
-            RAISERROR('Cannot delete city. Associated addresses exist.', 16, 1);
-            RETURN -1;
-        END
-
-        -- Delete city (soft delete)
-        UPDATE City
-        SET IsActive = 0,
-            UpdatedDate = GETDATE(),
-            DeletedDate = GETDATE()
-        WHERE CityId = @CityId;
-
-        -- Return success
-        RETURN 0;
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage, 16, 1);
-        RETURN -1;
-    END CATCH
+    DELETE FROM City WHERE CityId = @CityId;
 END;
 ```
 
