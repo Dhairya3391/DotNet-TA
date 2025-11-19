@@ -1,0 +1,527 @@
+@model MinuteOfMeeting.Controllers.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Dashboard";
+    ViewData["PageDescription"] = "Meeting management overview and analytics";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Meeting Dashboard</h4>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening with your meetings.</p>
+    </div>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
+            <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+        </button>
+        <button type="button" class="btn btn-outline-success" onclick="exportDashboard()">
+            <i class="bi bi-download me-2"></i>Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Meetings
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalMeetingsStat">
+                            @Model.TotalMeetings
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-event fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Upcoming
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="upcomingMeetingsStat">
+                            @Model.UpcomingMeetings
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-plus fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Completed
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="completedMeetingsStat">
+                            @Model.CompletedMeetings
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Cancelled
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="cancelledMeetingsStat">
+                            @Model.CancelledMeetings
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-x-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Meetings by Type Chart -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Meetings by Type</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                        <a class="dropdown-item" href="#" onclick="refreshChart('meetingsByType')">Refresh</a>
+                        <a class="dropdown-item" href="#" onclick="downloadChart('meetingsByTypeChart')">Download</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="meetingsByTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meetings by Department Chart -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Meetings by Department</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                        <a class="dropdown-item" href="#" onclick="refreshChart('meetingsByDepartment')">Refresh</a>
+                        <a class="dropdown-item" href="#" onclick="downloadChart('meetingsByDepartmentChart')">Download</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="meetingsByDepartmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Trend and Activity -->
+<div class="row mb-4">
+    <!-- Monthly Meeting Trend -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Monthly Meeting Trend</h6>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="changeTrendPeriod('6m')">6M</button>
+                    <button type="button" class="btn btn-outline-secondary active" onclick="changeTrendPeriod('1y')">1Y</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="changeTrendPeriod('all')">All</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Most Active Departments -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Most Active Departments</h6>
+            </div>
+            <div class="card-body">
+                <div id="activeDepartmentsList">
+                    @if (Model?.MostActiveDepartments != null && Model.MostActiveDepartments.Rows.Count > 0)
+                    {
+                        int rank = 1;
+                        foreach (System.Data.DataRow row in Model.MostActiveDepartments.Rows)
+                        {
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-primary rounded-circle p-2 text-white" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                                        @rank
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="fw-bold">@row["DepartmentName"]</div>
+                                    <div class="text-muted small">@row["MeetingCount"] meetings</div>
+                                </div>
+                            </div>
+                            rank++;
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No data available</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent and Upcoming Meetings -->
+<div class="row">
+    <!-- Recent Meetings -->
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Meetings</h6>
+            </div>
+            <div class="card-body">
+                @if (Model?.RecentMeetings != null && Model.RecentMeetings.Rows.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Meeting</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (System.Data.DataRow row in Model.RecentMeetings.Rows)
+                                {
+                                    <tr>
+                                        <td>
+                                            <small>@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd")</small><br>
+                                            <small class="text-muted">@Convert.ToDateTime(row["MeetingDate"]).ToString("HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">@row["MeetingDescription"]</div>
+                                            <small class="text-muted">@row["DepartmentName"]</small>
+                                        </td>
+                                        <td><span class="badge bg-info">@row["MeetingTypeName"]</span></td>
+                                        <td>
+                                            @if (Convert.ToBoolean(row["IsCancelled"]))
+                                            {
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            }
+                                            else if (Convert.ToDateTime(row["MeetingDate"]) < DateTime.Now)
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">Upcoming</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">No recent meetings found</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Meetings -->
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Upcoming Meetings</h6>
+            </div>
+            <div class="card-body">
+                @if (Model?.UpcomingMeetingsList != null && Model.UpcomingMeetingsList.Rows.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Meeting</th>
+                                    <th>Venue</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (System.Data.DataRow row in Model.UpcomingMeetingsList.Rows)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd")</div>
+                                            <small class="text-muted">@Convert.ToDateTime(row["MeetingDate"]).ToString("HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            <div>@row["MeetingDescription"]</div>
+                                            <small class="text-muted">@row["DepartmentName"]</small>
+                                        </td>
+                                        <td>
+                                            <small>@row["MeetingVenueName"]</small>
+                                        </td>
+                                        <td>
+                                            <a href="/Meeting/Details/@row["MeetingID"]" class="btn btn-sm btn-outline-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">No upcoming meetings scheduled</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let charts = {};
+
+        $(document).ready(function() {
+            initializeCharts();
+            loadChartData();
+
+            // Auto-refresh every 30 seconds
+            setInterval(refreshQuickStats, 30000);
+        });
+
+        function initializeCharts() {
+            // Meetings by Type - Pie Chart
+            const meetingsByTypeCtx = document.getElementById('meetingsByTypeChart').getContext('2d');
+            charts.meetingsByType = new Chart(meetingsByTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#4e73df',
+                            '#1cc88a',
+                            '#36b9cc',
+                            '#f6c23e',
+                            '#e74a3b',
+                            '#858796'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Meetings by Department - Bar Chart
+            const meetingsByDeptCtx = document.getElementById('meetingsByDepartmentChart').getContext('2d');
+            charts.meetingsByDepartment = new Chart(meetingsByDeptCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Number of Meetings',
+                        data: [],
+                        backgroundColor: '#4e73df',
+                        borderColor: '#4e73df',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Trend - Line Chart
+            const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+            charts.monthlyTrend = new Chart(monthlyTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Meetings',
+                        data: [],
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadChartData() {
+            // Load Meetings by Type
+            $.get('/Dashboard/GetChartData?chartType=meetingsbytype', function(response) {
+                if (!response.error && Array.isArray(response)) {
+                    charts.meetingsByType.data.labels = response.map(item => item.MeetingTypeName);
+                    charts.meetingsByType.data.datasets[0].data = response.map(item => item.Count);
+                    charts.meetingsByType.update();
+                }
+            });
+
+            // Load Meetings by Department
+            $.get('/Dashboard/GetChartData?chartType=meetingsbydepartment', function(response) {
+                if (!response.error && Array.isArray(response)) {
+                    charts.meetingsByDepartment.data.labels = response.map(item => item.DepartmentName);
+                    charts.meetingsByDepartment.data.datasets[0].data = response.map(item => item.Count);
+                    charts.meetingsByDepartment.update();
+                }
+            });
+
+            // Load Monthly Trend
+            $.get('/Dashboard/GetChartData?charttype=monthlytrend', function(response) {
+                if (!response.error && Array.isArray(response)) {
+                    charts.monthlyTrend.data.labels = response.map(item => item.Month);
+                    charts.monthlyTrend.data.datasets[0].data = response.map(item => item.Count);
+                    charts.monthlyTrend.update();
+                }
+            });
+        }
+
+        function refreshQuickStats() {
+            $.get('/Dashboard/QuickStats', function(response) {
+                if (!response.error) {
+                    $('#totalMeetingsStat').text(response.totalMeetings);
+                    $('#upcomingMeetingsStat').text(response.upcomingMeetings);
+                    $('#completedMeetingsStat').text(response.completedMeetings || 0);
+                    $('#cancelledMeetingsStat').text(response.cancelledMeetings || 0);
+                }
+            });
+        }
+
+        function refreshChart(chartType) {
+            switch(chartType) {
+                case 'meetingsByType':
+                    $.get('/Dashboard/GetChartData?charttype=meetingsbytype', function(response) {
+                        if (!response.error && Array.isArray(response)) {
+                            charts.meetingsByType.data.labels = response.map(item => item.MeetingTypeName);
+                            charts.meetingsByType.data.datasets[0].data = response.map(item => item.Count);
+                            charts.meetingsByType.update();
+                        }
+                    });
+                    break;
+                case 'meetingsByDepartment':
+                    $.get('/Dashboard/GetChartData?charttype=meetingsbydepartment', function(response) {
+                        if (!response.error && Array.isArray(response)) {
+                            charts.meetingsByDepartment.data.labels = response.map(item => item.DepartmentName);
+                            charts.meetingsByDepartment.data.datasets[0].data = response.map(item => item.Count);
+                            charts.meetingsByDepartment.update();
+                        }
+                    });
+                    break;
+            }
+        }
+
+        function refreshDashboard() {
+            location.reload();
+        }
+
+        function changeTrendPeriod(period) {
+            // Update button states
+            $('.btn-group .btn').removeClass('active');
+            $(event.target).addClass('active');
+
+            // Reload trend data with period filter
+            $.get('/Dashboard/GetChartData?charttype=monthlytrend&period=' + period, function(response) {
+                if (!response.error && Array.isArray(response)) {
+                    charts.monthlyTrend.data.labels = response.map(item => item.Month);
+                    charts.monthlyTrend.data.datasets[0].data = response.map(item => item.Count);
+                    charts.monthlyTrend.update();
+                }
+            });
+        }
+
+        function downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = chartId + '_' + new Date().toISOString().slice(0, 10) + '.png';
+            link.href = url;
+            link.click();
+        }
+
+        function exportDashboard() {
+            // In a real implementation, this would generate a comprehensive report
+            alert('Dashboard export functionality would generate a PDF report with all charts and statistics.');
+        }
+    </script>
+}

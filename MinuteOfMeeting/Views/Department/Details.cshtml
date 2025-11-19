@@ -1,0 +1,352 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Department Details";
+    ViewData["PageTitle"] = "Department Details";
+    ViewData["PageDescription"] = "View detailed information about this department";
+
+    var hasData = Model != null && Model.Rows.Count > 0;
+    var departmentId = 0;
+    var departmentName = string.Empty;
+    DateTime created = DateTime.MinValue;
+    DateTime modified = DateTime.MinValue;
+
+    if (hasData)
+    {
+        DataRow row = Model!.Rows[0];
+        departmentId = Convert.ToInt32(row["DepartmentID"]);
+        departmentName = row["DepartmentName"].ToString();
+        created = Convert.ToDateTime(row["Created"]);
+        modified = Convert.ToDateTime(row["Modified"]);
+    }
+}
+
+@if (!hasData)
+{
+    <div class="alert alert-warning">
+        Unable to find details for this department.
+    </div>
+}
+else
+{
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-building me-2"></i>
+                    Department Information
+                </h5>
+                <div class="btn-group" role="group">
+                    <a asp-action="StaffMembers" asp-route-id="@departmentId" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-people me-1"></i>View Staff
+                    </a>
+                    <a asp-action="AddEdit" asp-route-id="@departmentId" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            onclick="confirmDelete(@departmentId, '@departmentName')">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Department ID</label>
+                        <p class="form-control-plaintext fw-bold">@departmentId</p>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label text-muted">Department Name</label>
+                        <p class="form-control-plaintext">
+                            <span class="badge bg-primary fs-6">@departmentName</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Created Date</label>
+                        <p class="form-control-plaintext">
+                            <i class="bi bi-calendar-plus me-2"></i>
+                            @created.ToString("yyyy-MM-dd HH:mm:ss")
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Last Modified</label>
+                        <p class="form-control-plaintext">
+                            <i class="bi bi-calendar-check me-2"></i>
+                            @modified.ToString("yyyy-MM-dd HH:mm:ss")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Recent Department Activity
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="recentActivity">
+                    <div class="text-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2"></div>
+                        Loading recent activity...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>
+                    Department Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h2 class="text-primary mb-1" id="totalStaffCount">-</h2>
+                    <small class="text-muted">Total Staff Members</small>
+                </div>
+
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="p-2">
+                            <h5 class="text-success mb-1" id="totalMeetingsCount">-</h5>
+                            <small class="text-muted">Total Meetings</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2">
+                            <h5 class="text-warning mb-1" id="upcomingMeetingsCount">-</h5>
+                            <small class="text-muted">Upcoming</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-people me-2"></i>
+                    Staff Members
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="staffList">
+                    <div class="text-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2"></div>
+                        Loading staff members...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning me-2"></i>
+                    Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="StaffMembers" asp-route-id="@departmentId" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-people me-2"></i>
+                        Manage Staff Members
+                    </a>
+                    <a href="/Staff/Create?departmentId=@departmentId" class="btn btn-success btn-sm">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Add Staff Member
+                    </a>
+                    <a href="/Meeting?departmentId=@departmentId" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        View Department Meetings
+                    </a>
+                    <a href="/Meeting/Create?departmentId=@departmentId" class="btn btn-warning btn-sm">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Schedule Meeting
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Departments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the department: <strong id="deleteItemName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. Make sure this department has no staff members or associated meetings.
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" id="deleteCheckSpinner"></div>
+                    <span id="deleteCheckMessage">Checking for dependencies...</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Delete" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteItemId" />
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>
+                        <i class="bi bi-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadDepartmentStatistics();
+            loadStaffMembers();
+            loadRecentActivity();
+        });
+
+        function loadDepartmentStatistics() {
+            $.post('/Department/GetDepartmentStatistics', { departmentId: @departmentId }, function(response) {
+                if (!response.error) {
+                    $('#totalStaffCount').text(response.totalStaff || 0);
+                    $('#totalMeetingsCount').text(response.totalMeetings || 0);
+                    $('#upcomingMeetingsCount').text(response.upcomingMeetings || 0);
+                } else {
+                    $('#totalStaffCount').text('Error');
+                    $('#totalMeetingsCount').text('Error');
+                    $('#upcomingMeetingsCount').text('Error');
+                }
+            }).fail(function() {
+                $('#totalStaffCount').text('N/A');
+                $('#totalMeetingsCount').text('N/A');
+                $('#upcomingMeetingsCount').text('N/A');
+            });
+        }
+
+        function loadStaffMembers() {
+            // Simulate loading staff members (in real app, this would be an API call)
+            setTimeout(function() {
+                var staffMembers = [
+                    { name: 'John Smith', role: 'Manager', email: 'john.smith@company.com' },
+                    { name: 'Sarah Johnson', role: 'Senior Developer', email: 'sarah.j@company.com' },
+                    { name: 'Mike Chen', role: 'Developer', email: 'mike.chen@company.com' }
+                ];
+
+                var html = '';
+                if (staffMembers.length > 0) {
+                    html = '<div class="list-group list-group-flush">';
+                    staffMembers.forEach(function(staff) {
+                        html += `
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold">${staff.name}</div>
+                                        <small class="text-muted">${staff.role}</small><br>
+                                        <small class="text-muted">${staff.email}</small>
+                                    </div>
+                                    <i class="bi bi-chevron-right text-muted"></i>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    html += '<div class="text-center mt-2"><a href="/Department/StaffMembers/@departmentId" class="btn btn-sm btn-outline-primary">View All Staff</a></div>';
+                } else {
+                    html = '<p class="text-muted small mb-0">No staff members found.</p>';
+                }
+
+                $('#staffList').html(html);
+            }, 1000);
+        }
+
+        function loadRecentActivity() {
+            // Simulate loading recent activity (in real app, this would be an API call)
+            setTimeout(function() {
+                var activities = [
+                    { date: '2025-01-20', action: 'New staff member added', details: 'Emily Davis joined as Developer' },
+                    { date: '2025-01-18', action: 'Meeting scheduled', details: 'Q1 Planning Session - Jan 25' },
+                    { date: '2025-01-15', action: 'Department updated', details: 'Contact information changed' }
+                ];
+
+                var html = '';
+                if (activities.length > 0) {
+                    html = '<div class="timeline">';
+                    activities.forEach(function(activity) {
+                        html += `
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-primary rounded-circle p-2 text-white" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-activity"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="fw-bold">${activity.action}</div>
+                                    <small class="text-muted">${activity.details}</small><br>
+                                    <small class="text-muted">${activity.date}</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html = '<p class="text-muted small mb-0">No recent activity found.</p>';
+                }
+
+                $('#recentActivity').html(html);
+            }, 1500);
+        }
+
+        function confirmDelete(id, name) {
+            $('#deleteItemId').val(id);
+            $('#deleteItemName').text(name);
+            $('#confirmDeleteBtn').prop('disabled', true);
+            $('#deleteCheckSpinner').show();
+            $('#deleteCheckMessage').text('Checking for dependencies...');
+
+            // Simulate dependency check (in real app, this would be an API call)
+            setTimeout(function() {
+                var hasDependencies = false; // Simulate no dependencies
+                if (hasDependencies) {
+                    $('#deleteCheckMessage').html(
+                        '<span class="text-danger">Cannot delete: This department has staff members or meetings.</span>'
+                    );
+                    $('#confirmDeleteBtn').prop('disabled', true);
+                } else {
+                    $('#deleteCheckMessage').html(
+                        '<span class="text-success">No dependencies found. Safe to delete.</span>'
+                    );
+                    $('#confirmDeleteBtn').prop('disabled', false);
+                }
+                $('#deleteCheckSpinner').hide();
+            }, 1000);
+
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+}

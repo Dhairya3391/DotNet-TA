@@ -1,0 +1,181 @@
+@model MinuteOfMeeting.Controllers.StaffProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["PageTitle"] = "My Profile";
+    ViewData["PageDescription"] = "View and manage your account information";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Profile Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Username</label>
+                            <p class="form-control-plaintext fw-bold">@Model.Username</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">User Role</label>
+                            <p class="form-control-plaintext">
+                                <span class="badge bg-@(Model.Role == "Admin" ? "danger" : Model.Role == "Organizer" ? "warning text-dark" : "info")">
+                                    @Model.Role
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Account Status</label>
+                            <p class="form-control-plaintext">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Last Login</label>
+                            <p class="form-control-plaintext">
+                                @(Model.LastLogin?.ToString("yyyy-MM-dd HH:mm") ?? "Never")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted">Member Since</label>
+                    <p class="form-control-plaintext">@Model.Created.ToString("yyyy-MM-dd HH:mm")</p>
+                </div>
+
+                @if (Model.StaffID.HasValue)
+                {
+                    <hr />
+                    <h6 class="text-primary mb-3">
+                        <i class="bi bi-person-badge me-2"></i>
+                        Linked Staff Information
+                    </h6>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Staff Name</label>
+                                <p class="form-control-plaintext">@Model.StaffName</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Department</label>
+                                <p class="form-control-plaintext">@Model.DepartmentName</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Mobile Number</label>
+                                <p class="form-control-plaintext">@Model.MobileNo</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email Address</label>
+                                <p class="form-control-plaintext">@Model.EmailAddress</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This user account is not linked to any staff member.
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <a asp-action="ChangePassword" class="btn btn-warning">
+                        <i class="bi bi-key me-2"></i>
+                        Change Password
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Security Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Password</label>
+                    <p class="form-control-plaintext">
+                        <span class="text-muted">••••••••</span>
+                        <a asp-action="ChangePassword" class="btn btn-sm btn-outline-primary ms-2">
+                            Change
+                        </a>
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted">Two-Factor Authentication</label>
+                    <p class="form-control-plaintext">
+                        <span class="badge bg-secondary">Not Enabled</span>
+                    </p>
+                </div>
+
+                <div class="alert alert-warning small">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    For security reasons, please change your password regularly and use a strong password.
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Need Help?
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    If you have any issues with your account or need assistance, please contact the system administrator.
+                </p>
+                <div class="d-grid">
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-envelope me-2"></i>
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,184 @@
+@model MinuteOfMeeting.Models.MeetingType
+@{
+    ViewData["Title"] = (Model.MeetingTypeID == 0 ? "Add" : "Edit") + " Meeting Type";
+    ViewData["PageTitle"] = (Model.MeetingTypeID == 0 ? "Add New" : "Edit") + " Meeting Type";
+    ViewData["PageDescription"] = (Model.MeetingTypeID == 0 ? "Create a new meeting type" : "Update existing meeting type");
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-tag me-2"></i>
+                    @(Model.MeetingTypeID == 0 ? "Add New Meeting Type" : "Edit Meeting Type")
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Save" method="post" id="meetingTypeForm">
+                    @Html.AntiForgeryToken()
+
+                    @if (Model.MeetingTypeID != 0)
+                    {
+                        <input type="hidden" asp-for="MeetingTypeID" />
+                        <input type="hidden" asp-for="Created" />
+                    }
+
+                    <div class="form-group mb-3">
+                        <label asp-for="MeetingTypeName" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-tag"></i>
+                            </span>
+                            <input asp-for="MeetingTypeName" class="form-control"
+                                   placeholder="Enter meeting type name" id="meetingTypeNameInput"
+                                   autocomplete="off" />
+                        </div>
+                        <span asp-validation-for="MeetingTypeName" class="text-danger"></span>
+                        <div id="nameAvailability" class="mt-1 small"></div>
+                        <small class="text-muted">e.g., Review Meeting, Planning Session, Training</small>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Remarks" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-chat-text"></i>
+                            </span>
+                            <textarea asp-for="Remarks" class="form-control" rows="3"
+                                      placeholder="Enter any additional remarks or description"></textarea>
+                        </div>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                        <small class="text-muted">Optional: Add any additional context about this meeting type</small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Meeting Type Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Use descriptive names that clearly indicate the purpose</li>
+                            <li>Keep names consistent across the organization</li>
+                            <li>Examples: "Board Meeting", "Team Standup", "Client Review", "Training Workshop"</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @(Model.MeetingTypeID == 0 ? "Create Meeting Type" : "Update Meeting Type")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing Meetings Warning (shown for edit mode) -->
+@if (Model.MeetingTypeID != 0)
+{
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Important Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Created Date:</small><br>
+                            <strong>@Model.Created.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Last Modified:</small><br>
+                            <strong>@Model.Modified.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This meeting type may be referenced by existing meetings.
+                        Changes will apply to all future meetings but won't affect historical data.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            // Real-time name availability check
+            var checkTimeout;
+            $('#meetingTypeNameInput').on('input', function() {
+                var meetingTypeName = $(this).val().trim();
+                var excludeId = @(Model.MeetingTypeID);
+
+                // Clear previous timeout
+                clearTimeout(checkTimeout);
+
+                // Only check if we have at least 2 characters
+                if (meetingTypeName.length >= 2) {
+                    // Set a small delay to avoid too many requests
+                    checkTimeout = setTimeout(function() {
+                        checkNameAvailability(meetingTypeName, excludeId);
+                    }, 300);
+                } else {
+                    $('#nameAvailability').empty();
+                }
+            });
+
+            // Form submission with loading state
+            $('#meetingTypeForm').on('submit', function() {
+                var submitBtn = $('#submitButton');
+                submitBtn.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+                // Re-enable button after 5 seconds in case of error
+                setTimeout(function() {
+                    submitBtn.prop('disabled', false)
+                        .html('@(Model.MeetingTypeID == 0 ? "Create Meeting Type" : "Update Meeting Type")');
+                }, 5000);
+            });
+
+            // Focus on meeting type name field
+            $('#meetingTypeNameInput').focus();
+        });
+
+        function checkNameAvailability(meetingTypeName, excludeId) {
+            $.post('/MeetingType/CheckMeetingTypeName', {
+                meetingTypeName: meetingTypeName,
+                excludeId: excludeId || null
+            }, function(response) {
+                var feedback = $('#nameAvailability');
+
+                if (response.error) {
+                    feedback.removeClass('text-success text-danger')
+                        .addClass('text-warning')
+                        .text('Error checking availability. Please try again.');
+                    return;
+                }
+
+                if (response.available) {
+                    feedback.removeClass('text-danger text-warning')
+                        .addClass('text-success')
+                        .html('<i class="bi bi-check-circle me-1"></i>Meeting type name is available!');
+                } else {
+                    feedback.removeClass('text-success text-warning')
+                        .addClass('text-danger')
+                        .html('<i class="bi bi-x-circle me-1"></i>Meeting type name already exists!');
+                }
+            });
+        }
+    </script>
+}

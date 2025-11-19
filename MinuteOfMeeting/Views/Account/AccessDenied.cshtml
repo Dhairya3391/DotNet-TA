@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    ViewData["PageTitle"] = "Access Denied";
+    ViewData["PageDescription"] = "You don't have permission to access this resource";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-danger text-white text-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-shield-exclamation me-2"></i>
+                    Access Denied
+                </h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="bi bi-lock-fill text-danger" style="font-size: 4rem;"></i>
+                </div>
+
+                <h5 class="mb-3">You don't have permission to access this page</h5>
+
+                <p class="text-muted mb-4">
+                    The resource you're trying to access requires special permissions that your current account doesn't have.
+                    Please contact your system administrator if you believe this is an error.
+                </p>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Possible reasons:</strong>
+                    <ul class="mb-0 mt-2 text-start">
+                        <li>Your account role doesn't have sufficient privileges</li>
+                        <li>The page requires administrator access</li>
+                        <li>Your session may have expired</li>
+                        <li>You're trying to access restricted data</li>
+                    </ul>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="javascript:history.back()" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Go Back
+                    </a>
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        Dashboard
+                    </a>
+                    <a asp-action="Logout" class="btn btn-outline-danger">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Role Permissions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <span class="badge bg-danger mb-2">Admin</span>
+                            <p class="small text-muted">
+                                Full system access including user management, all CRUD operations, and system configuration.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <span class="badge bg-warning text-dark mb-2">Organizer</span>
+                            <p class="small text-muted">
+                                Can schedule meetings, manage attendance, view reports, and manage master data.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <span class="badge bg-info mb-2">Staff</span>
+                            <p class="small text-muted">
+                                Can view assigned meetings, mark attendance, and access personal profile information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

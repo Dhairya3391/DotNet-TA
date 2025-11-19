@@ -1,0 +1,306 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Department Staff Members";
+    int departmentId = 0;
+    string departmentName = "";
+
+    if (ViewBag.Department != null)
+    {
+        DataRow deptRow = ViewBag.Department;
+        departmentId = Convert.ToInt32(deptRow["DepartmentID"]);
+        departmentName = deptRow["DepartmentName"].ToString();
+    }
+
+    ViewData["PageTitle"] = "Staff Members";
+    ViewData["PageDescription"] = $"Manage staff members in {departmentName} department";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">
+            <i class="bi bi-people me-2"></i>
+            @departmentName - Staff Members
+        </h4>
+        <p class="text-muted mb-0">View and manage all staff members in this department</p>
+    </div>
+    <div>
+        <a href="/Staff/Create?departmentId=@departmentId" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Add Staff Member
+        </a>
+        <a asp-action="Details" asp-route-id="@departmentId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Department
+        </a>
+    </div>
+</div>
+
+<!-- Department Summary Card -->
+<div class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white">
+        <h6 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            @departmentName Department
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="p-2">
+                    <h4 class="text-primary mb-1">@(Model?.Rows.Count ?? 0)</h4>
+                    <small class="text-muted">Total Staff</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-2">
+                    <h4 class="text-success mb-1" id="activeStaffCount">-</h4>
+                    <small class="text-muted">Active</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-2">
+                    <h4 class="text-warning mb-1" id="recentMeetingsCount">-</h4>
+                    <small class="text-muted">Recent Meetings</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-2">
+                    <h4 class="text-info mb-1" id="upcomingMeetingsCount">-</h4>
+                    <small class="text-muted">Upcoming</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="searchText" class="form-control"
+                           placeholder="Search staff members..." value="@ViewData["SearchText"]" />
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                    <a asp-action="StaffMembers" asp-route-id="@departmentId" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-success" onclick="exportStaffList()">
+                        <i class="bi bi-file-earmark-excel me-1"></i>Export
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="refreshData()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Staff Members Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-people me-2"></i>
+            Staff Members List
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" id="staffTable">
+                    <thead>
+                        <tr>
+                            <th width="80">#</th>
+                            <th>Staff Name</th>
+                            <th>Mobile Number</th>
+                            <th>Email Address</th>
+                            <th>Remarks</th>
+                            <th width="150">Created Date</th>
+                            <th width="120" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (DataRow row in Model.Rows)
+                        {
+                            <tr>
+                                <td>@row["StaffID"]</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary rounded-circle p-2 text-white me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <div>
+                                            <strong>@row["StaffName"]</strong><br>
+                                            <small class="text-muted">@departmentName</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="tel:@row["MobileNo"]" class="text-decoration-none">
+                                        <i class="bi bi-telephone me-1"></i>@row["MobileNo"]
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="mailto:@row["EmailAddress"]" class="text-decoration-none">
+                                        <i class="bi bi-envelope me-1"></i>@row["EmailAddress"]
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row["Remarks"].ToString()))
+                                    {
+                                        <span>@row["Remarks"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No remarks</span>
+                                    }
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        @Convert.ToDateTime(row["Created"]).ToString("yyyy-MM-dd")
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="/Staff/Details/@row["StaffID"]" class="btn btn-sm btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="/Staff/AddEdit/@row["StaffID"]" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                                onclick="viewStaffMeetings(@row["StaffID"], '@row["StaffName"]')" title="View Meetings">
+                                            <i class="bi bi-calendar-event"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No Staff Members Found</h5>
+                <p class="text-muted">This department doesn't have any staff members yet.</p>
+                <a href="/Staff/Create?departmentId=@departmentId" class="btn btn-primary">
+                    <i class="bi bi-person-plus me-2"></i>Add First Staff Member
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Staff Meetings Modal -->
+<div class="modal fade" id="staffMeetingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    Meetings for <span id="staffMeetingsName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="staffMeetingsList">
+                    <div class="text-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2"></div>
+                        Loading meetings...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadDepartmentStatistics();
+        });
+
+        function loadDepartmentStatistics() {
+            // Simulate loading statistics (in real app, this would be an API call)
+            setTimeout(function() {
+                $('#activeStaffCount').text(@(Model?.Rows.Count ?? 0));
+                $('#recentMeetingsCount').text('8');
+                $('#upcomingMeetingsCount').text('3');
+            }, 1000);
+        }
+
+        function viewStaffMeetings(staffId, staffName) {
+            $('#staffMeetingsName').text(staffName);
+            $('#staffMeetingsList').html(
+                '<div class="text-center text-muted">' +
+                '<div class="spinner-border spinner-border-sm me-2"></div>' +
+                'Loading meetings...</div>'
+            );
+
+            // Simulate loading staff meetings (in real app, this would be an API call)
+            setTimeout(function() {
+                var meetings = [
+                    { date: '2025-01-25', title: 'Q1 Planning Session', type: 'Planning', status: 'Upcoming' },
+                    { date: '2025-01-20', title: 'Team Standup', type: 'Review', status: 'Attended' },
+                    { date: '2025-01-18', title: 'Budget Discussion', type: 'Review', status: 'Attended' },
+                    { date: '2025-01-15', title: 'Project Kickoff', type: 'Planning', status: 'Attended' }
+                ];
+
+                var html = '';
+                if (meetings.length > 0) {
+                    html = '<div class="list-group list-group-flush">';
+                    meetings.forEach(function(meeting) {
+                        var statusBadge = meeting.status === 'Upcoming' ? 'bg-warning text-dark' : 'bg-success';
+                        html += `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold">${meeting.title}</div>
+                                        <small class="text-muted">${meeting.date} • ${meeting.type}</small>
+                                    </div>
+                                    <span class="badge ${statusBadge}">${meeting.status}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html = '<p class="text-muted">No meetings found for this staff member.</p>';
+                }
+
+                $('#staffMeetingsList').html(html);
+            }, 1000);
+
+            var modal = new bootstrap.Modal(document.getElementById('staffMeetingsModal'));
+            modal.show();
+        }
+
+        function exportStaffList() {
+            // In a real implementation, this would call an export endpoint
+            alert('Export functionality would download the staff list as Excel file.');
+        }
+
+        function refreshData() {
+            location.reload();
+        }
+
+        // Search functionality
+        $('#searchText').on('keypress', function(e) {
+            if (e.which === 13) {
+                $(this).closest('form').submit();
+            }
+        });
+    </script>
+}

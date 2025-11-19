@@ -1,0 +1,325 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Departments";
+    ViewData["PageTitle"] = "Departments";
+    ViewData["PageDescription"] = "Manage organizational departments and their staff members";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Department Management</h4>
+        <p class="text-muted mb-0">Organize and track departments across the organization</p>
+    </div>
+    <div>
+        <a asp-action="AddEdit" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Add Department
+        </a>
+        <button type="button" class="btn btn-success" onclick="exportToExcel()">
+            <i class="bi bi-file-earmark-excel me-2"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Search and Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="searchText" class="form-control"
+                           placeholder="Search departments..." value="@ViewData["SearchText"]" />
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="text-muted">
+                    Total Departments: @(Model?.Rows.Count ?? 0)
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Departments Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            Departments List
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            <form method="post" asp-action="BulkDelete" id="bulkDeleteForm">
+                @Html.AntiForgeryToken()
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="departmentsTable">
+                        <thead>
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAll" class="form-check-input" />
+                                </th>
+                                <th width="80">#</th>
+                                <th>Department Name</th>
+                                <th width="120">Staff Count</th>
+                                <th width="120">Meetings</th>
+                                <th width="150">Created Date</th>
+                                <th width="150">Modified Date</th>
+                                <th width="180" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow row in Model.Rows)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selectedIds" value="@row["DepartmentID"]"
+                                               class="form-check-input row-checkbox" />
+                                    </td>
+                                    <td>@row["DepartmentID"]</td>
+                                    <td>
+                                        <strong>@row["DepartmentName"]</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info department-staff-count" data-dept-id="@row["DepartmentID"]">
+                                            <i class="bi bi-people me-1"></i>
+                                            <span> Loading... </span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning department-meeting-count" data-dept-id="@row["DepartmentID"]">
+                                            <i class="bi bi-calendar-event me-1"></i>
+                                            <span> Loading... </span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @Convert.ToDateTime(row["Created"]).ToString("yyyy-MM-dd")
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @Convert.ToDateTime(row["Modified"]).ToString("yyyy-MM-dd HH:mm")
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@row["DepartmentID"]"
+                                               class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="StaffMembers" asp-route-id="@row["DepartmentID"]"
+                                               class="btn btn-sm btn-outline-info" title="View Staff">
+                                                <i class="bi bi-people"></i>
+                                            </a>
+                                            <a asp-action="AddEdit" asp-route-id="@row["DepartmentID"]"
+                                               class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="confirmDelete(@row["DepartmentID"], '@row["DepartmentName"]')" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="mt-3" id="bulkActions" style="display: none;">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <span class="text-muted">
+                                <span id="selectedCount">0</span> department(s) selected
+                            </span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="clearSelection()">
+                                Clear Selection
+                            </button>
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirmBulkDelete()">
+                                <i class="bi bi-trash me-2"></i>Delete Selected
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No Departments Found</h5>
+                <p class="text-muted">Get started by adding your first department.</p>
+                <a asp-action="AddEdit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Add First Department
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the department: <strong id="deleteItemName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. Make sure this department has no staff members or associated meetings.
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" id="deleteCheckSpinner"></div>
+                    <span id="deleteCheckMessage">Checking for dependencies...</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Delete" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteItemId" />
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>
+                        <i class="bi bi-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load statistics for each department
+            loadDepartmentStatistics();
+
+            // Select all checkbox functionality
+            $('#selectAll').change(function() {
+                $('.row-checkbox').prop('checked', $(this).prop('checked'));
+                updateBulkActions();
+            });
+
+            // Individual checkbox functionality
+            $('.row-checkbox').change(function() {
+                updateBulkActions();
+                updateSelectAll();
+            });
+
+            // Initialize bulk actions visibility
+            updateBulkActions();
+        });
+
+        function loadDepartmentStatistics() {
+            $('.department-staff-count, .department-meeting-count').each(function() {
+                var element = $(this);
+                var deptId = element.data('dept-id');
+
+                $.post('/Department/GetDepartmentStatistics', { departmentId: deptId }, function(response) {
+                    if (!response.error) {
+                        if (element.hasClass('department-staff-count')) {
+                            element.find('span').text(response.totalStaff || 0);
+                        } else if (element.hasClass('department-meeting-count')) {
+                            element.find('span').text(response.totalMeetings || 0);
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateBulkActions() {
+            var selectedCount = $('.row-checkbox:checked').length;
+            $('#selectedCount').text(selectedCount);
+
+            if (selectedCount > 0) {
+                $('#bulkActions').show();
+            } else {
+                $('#bulkActions').hide();
+            }
+        }
+
+        function updateSelectAll() {
+            var totalCheckboxes = $('.row-checkbox').length;
+            var checkedCheckboxes = $('.row-checkbox:checked').length;
+
+            if (checkedCheckboxes === 0) {
+                $('#selectAll').prop('indeterminate', false).prop('checked', false);
+            } else if (checkedCheckboxes === totalCheckboxes) {
+                $('#selectAll').prop('indeterminate', false).prop('checked', true);
+            } else {
+                $('#selectAll').prop('indeterminate', true);
+            }
+        }
+
+        function clearSelection() {
+            $('#selectAll').prop('checked', false);
+            $('.row-checkbox').prop('checked', false);
+            updateBulkActions();
+        }
+
+        function confirmDelete(id, name) {
+            $('#deleteItemId').val(id);
+            $('#deleteItemName').text(name);
+            $('#confirmDeleteBtn').prop('disabled', true);
+            $('#deleteCheckSpinner').show();
+            $('#deleteCheckMessage').text('Checking for dependencies...');
+
+            // Simulate dependency check (in real app, this would be an API call)
+            setTimeout(function() {
+                var hasDependencies = false; // Simulate no dependencies
+                if (hasDependencies) {
+                    $('#deleteCheckMessage').html(
+                        '<span class="text-danger">Cannot delete: This department has staff members or meetings.</span>'
+                    );
+                    $('#confirmDeleteBtn').prop('disabled', true);
+                } else {
+                    $('#deleteCheckMessage').html(
+                        '<span class="text-success">No dependencies found. Safe to delete.</span>'
+                    );
+                    $('#confirmDeleteBtn').prop('disabled', false);
+                }
+                $('#deleteCheckSpinner').hide();
+            }, 1000);
+
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        function confirmBulkDelete() {
+            var selectedCount = $('.row-checkbox:checked').length;
+            if (selectedCount === 0) {
+                alert('Please select at least one item to delete.');
+                return false;
+            }
+
+            return confirm('Are you sure you want to delete ' + selectedCount + ' selected department(s)?\n\n' +
+                          'Warning: This action cannot be undone. Make sure these departments have no staff members or meetings.');
+        }
+
+        function exportToExcel() {
+            window.location.href = '@Url.Action("ExportToExcel")';
+        }
+
+        // Search functionality
+        $('#searchText').on('keypress', function(e) {
+            if (e.which === 13) {
+                $(this).closest('form').submit();
+            }
+        });
+    </script>
+}

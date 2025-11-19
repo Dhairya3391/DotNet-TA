@@ -1,0 +1,219 @@
+@model MinuteOfMeeting.Models.Department
+@{
+    ViewData["Title"] = (Model.DepartmentID == 0 ? "Add" : "Edit") + " Department";
+    ViewData["PageTitle"] = (Model.DepartmentID == 0 ? "Add New" : "Edit") + " Department";
+    ViewData["PageDescription"] = (Model.DepartmentID == 0 ? "Create a new department" : "Update existing department");
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-building me-2"></i>
+                    @(Model.DepartmentID == 0 ? "Add New Department" : "Edit Department")
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Save" method="post" id="departmentForm">
+                    @Html.AntiForgeryToken()
+
+                    @if (Model.DepartmentID != 0)
+                    {
+                        <input type="hidden" asp-for="DepartmentID" />
+                        <input type="hidden" asp-for="Created" />
+                    }
+
+                    <div class="form-group mb-3">
+                        <label asp-for="DepartmentName" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-building"></i>
+                            </span>
+                            <input asp-for="DepartmentName" class="form-control"
+                                   placeholder="Enter department name" id="departmentNameInput"
+                                   autocomplete="off" />
+                        </div>
+                        <span asp-validation-for="DepartmentName" class="text-danger"></span>
+                        <div id="nameAvailability" class="mt-1 small"></div>
+                        <small class="text-muted">e.g., Human Resources, Information Technology, Finance</small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Department Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Use clear, professional department names</li>
+                            <li>Keep names consistent with organizational structure</li>
+                            <li>Avoid abbreviations unless widely recognized</li>
+                            <li>Examples: "Marketing", "Research & Development", "Customer Service"</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @(Model.DepartmentID == 0 ? "Create Department" : "Update Department")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing Department Info (shown for edit mode) -->
+@if (Model.DepartmentID != 0)
+{
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Department Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Created Date:</small><br>
+                            <strong>@Model.Created.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Last Modified:</small><br>
+                            <strong>@Model.Modified.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="loadDepartmentStats()">
+                            <i class="bi bi-bar-chart me-2"></i>Load Statistics
+                        </button>
+                        <div id="departmentStats" class="mt-3" style="display: none;">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="p-2">
+                                        <h5 class="text-primary mb-1" id="staffCount">-</h5>
+                                        <small class="text-muted">Staff Members</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2">
+                                        <h5 class="text-success mb-1" id="meetingCount">-</h5>
+                                        <small class="text-muted">Total Meetings</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2">
+                                        <h5 class="text-warning mb-1" id="upcomingCount">-</h5>
+                                        <small class="text-muted">Upcoming</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            // Real-time name availability check
+            var checkTimeout;
+            $('#departmentNameInput').on('input', function() {
+                var departmentName = $(this).val().trim();
+                var excludeId = @(Model.DepartmentID);
+
+                // Clear previous timeout
+                clearTimeout(checkTimeout);
+
+                // Only check if we have at least 2 characters
+                if (departmentName.length >= 2) {
+                    // Set a small delay to avoid too many requests
+                    checkTimeout = setTimeout(function() {
+                        checkNameAvailability(departmentName, excludeId);
+                    }, 300);
+                } else {
+                    $('#nameAvailability').empty();
+                }
+            });
+
+            // Form submission with loading state
+            $('#departmentForm').on('submit', function() {
+                var submitBtn = $('#submitButton');
+                submitBtn.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+                // Re-enable button after 5 seconds in case of error
+                setTimeout(function() {
+                    submitBtn.prop('disabled', false)
+                        .html('@(Model.DepartmentID == 0 ? "Create Department" : "Update Department")');
+                }, 5000);
+            });
+
+            // Focus on department name field
+            $('#departmentNameInput').focus();
+        });
+
+        function checkNameAvailability(departmentName, excludeId) {
+            $.post('/Department/CheckDepartmentName', {
+                departmentName: departmentName,
+                excludeId: excludeId || null
+            }, function(response) {
+                var feedback = $('#nameAvailability');
+
+                if (response.error) {
+                    feedback.removeClass('text-success text-danger')
+                        .addClass('text-warning')
+                        .text('Error checking availability. Please try again.');
+                    return;
+                }
+
+                if (response.available) {
+                    feedback.removeClass('text-danger text-warning')
+                        .addClass('text-success')
+                        .html('<i class="bi bi-check-circle me-1"></i>Department name is available!');
+                } else {
+                    feedback.removeClass('text-success text-warning')
+                        .addClass('text-danger')
+                        .html('<i class="bi bi-x-circle me-1"></i>Department name already exists!');
+                }
+            });
+        }
+
+        function loadDepartmentStats() {
+            var deptId = @(Model.DepartmentID);
+
+            $('#departmentStats').show();
+            $('#staffCount').text('-');
+            $('#meetingCount').text('-');
+            $('#upcomingCount').text('-');
+
+            $.post('/Department/GetDepartmentStatistics', { departmentId: deptId }, function(response) {
+                if (!response.error) {
+                    $('#staffCount').text(response.totalStaff || 0);
+                    $('#meetingCount').text(response.totalMeetings || 0);
+                    $('#upcomingCount').text(response.upcomingMeetings || 0);
+                } else {
+                    $('#departmentStats').html(
+                        '<div class="alert alert-warning">Error loading statistics.</div>'
+                    );
+                }
+            }).fail(function() {
+                $('#departmentStats').html(
+                    '<div class="alert alert-danger">Failed to load statistics.</div>'
+                );
+            });
+        }
+    </script>
+}

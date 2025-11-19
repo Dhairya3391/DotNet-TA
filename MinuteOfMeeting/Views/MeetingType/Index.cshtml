@@ -1,0 +1,271 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Meeting Types";
+    ViewData["PageTitle"] = "Meeting Types";
+    ViewData["PageDescription"] = "Manage different types of meetings in the organization";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Meeting Types Management</h4>
+        <p class="text-muted mb-0">Configure and organize meeting categories</p>
+    </div>
+    <div>
+        <a asp-action="AddEdit" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Add New Type
+        </a>
+        <button type="button" class="btn btn-success" onclick="exportToExcel()">
+            <i class="bi bi-file-earmark-excel me-2"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Search and Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="searchText" class="form-control"
+                           placeholder="Search meeting types..." value="@ViewData["SearchText"]" />
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="text-muted">
+                    Total Records: @(Model?.Rows.Count ?? 0)
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Meeting Types Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-tags me-2"></i>
+            Meeting Types List
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            <form method="post" asp-action="BulkDelete" id="bulkDeleteForm">
+                @Html.AntiForgeryToken()
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="meetingTypesTable">
+                        <thead>
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAll" class="form-check-input" />
+                                </th>
+                                <th width="80">#</th>
+                                <th>Meeting Type Name</th>
+                                <th>Remarks</th>
+                                <th width="150">Created Date</th>
+                                <th width="150">Modified Date</th>
+                                <th width="120" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow row in Model.Rows)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selectedIds" value="@row["MeetingTypeID"]"
+                                               class="form-check-input row-checkbox" />
+                                    </td>
+                                    <td>@row["MeetingTypeID"]</td>
+                                    <td>
+                                        <strong>@row["MeetingTypeName"]</strong>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(row["Remarks"].ToString()))
+                                        {
+                                            <span>@row["Remarks"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No remarks</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @Convert.ToDateTime(row["Created"]).ToString("yyyy-MM-dd")
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @Convert.ToDateTime(row["Modified"]).ToString("yyyy-MM-dd HH:mm")
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@row["MeetingTypeID"]"
+                                               class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="AddEdit" asp-route-id="@row["MeetingTypeID"]"
+                                               class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="confirmDelete(@row["MeetingTypeID"], '@row["MeetingTypeName"]')" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="mt-3" id="bulkActions" style="display: none;">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <span class="text-muted">
+                                <span id="selectedCount">0</span> item(s) selected
+                            </span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="clearSelection()">
+                                Clear Selection
+                            </button>
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirmBulkDelete()">
+                                <i class="bi bi-trash me-2"></i>Delete Selected
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No Meeting Types Found</h5>
+                <p class="text-muted">Get started by adding your first meeting type.</p>
+                <a asp-action="AddEdit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Add First Meeting Type
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the meeting type: <strong id="deleteItemName"></strong>?</p>
+                <p class="text-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    This action cannot be undone. Make sure this meeting type is not being used by any meetings.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Delete" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteItemId" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Select all checkbox functionality
+            $('#selectAll').change(function() {
+                $('.row-checkbox').prop('checked', $(this).prop('checked'));
+                updateBulkActions();
+            });
+
+            // Individual checkbox functionality
+            $('.row-checkbox').change(function() {
+                updateBulkActions();
+                updateSelectAll();
+            });
+
+            // Initialize bulk actions visibility
+            updateBulkActions();
+        });
+
+        function updateBulkActions() {
+            var selectedCount = $('.row-checkbox:checked').length;
+            $('#selectedCount').text(selectedCount);
+
+            if (selectedCount > 0) {
+                $('#bulkActions').show();
+            } else {
+                $('#bulkActions').hide();
+            }
+        }
+
+        function updateSelectAll() {
+            var totalCheckboxes = $('.row-checkbox').length;
+            var checkedCheckboxes = $('.row-checkbox:checked').length;
+
+            if (checkedCheckboxes === 0) {
+                $('#selectAll').prop('indeterminate', false).prop('checked', false);
+            } else if (checkedCheckboxes === totalCheckboxes) {
+                $('#selectAll').prop('indeterminate', false).prop('checked', true);
+            } else {
+                $('#selectAll').prop('indeterminate', true);
+            }
+        }
+
+        function clearSelection() {
+            $('#selectAll').prop('checked', false);
+            $('.row-checkbox').prop('checked', false);
+            updateBulkActions();
+        }
+
+        function confirmDelete(id, name) {
+            $('#deleteItemId').val(id);
+            $('#deleteItemName').text(name);
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        function confirmBulkDelete() {
+            var selectedCount = $('.row-checkbox:checked').length;
+            if (selectedCount === 0) {
+                alert('Please select at least one item to delete.');
+                return false;
+            }
+
+            return confirm('Are you sure you want to delete ' + selectedCount + ' selected meeting type(s)?\n\n' +
+                          'Warning: This action cannot be undone. Make sure these meeting types are not being used by any meetings.');
+        }
+
+        function exportToExcel() {
+            window.location.href = '@Url.Action("ExportToExcel")';
+        }
+
+        // Search functionality
+        $('#searchText').on('keypress', function(e) {
+            if (e.which === 13) {
+                $(this).closest('form').submit();
+            }
+        });
+    </script>
+}
