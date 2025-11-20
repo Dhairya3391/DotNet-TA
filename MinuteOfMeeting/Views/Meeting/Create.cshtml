@@ -1,0 +1,255 @@
+@model MinuteOfMeeting.Models.Meeting
+@using System.Data
+@{
+    ViewData["Title"] = "Schedule Meeting";
+    ViewData["PageTitle"] = "Schedule New Meeting";
+    ViewData["PageDescription"] = "Create and schedule a new organizational meeting";
+
+    DataTable meetingTypes = ViewBag.MeetingTypes as DataTable ?? new DataTable();
+    DataTable departments = ViewBag.Departments as DataTable ?? new DataTable();
+    DataTable venues = ViewBag.Venues as DataTable ?? new DataTable();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-plus me-2"></i>
+                    Schedule New Meeting
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data" id="meetingForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="MeetingTypeID" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-tag"></i>
+                                    </span>
+                                    <select asp-for="MeetingTypeID" class="form-select" id="meetingTypeSelect">
+                                        <option value="">-- Select Meeting Type --</option>
+                                        @if (meetingTypes.Rows.Count > 0)
+                                        {
+                                            @foreach (DataRow row in meetingTypes.Rows)
+                                            {
+                                                <option value="@row["MeetingTypeID"]">@row["MeetingTypeName"]</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <span asp-validation-for="MeetingTypeID" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="DepartmentID" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-building"></i>
+                                    </span>
+                                    <select asp-for="DepartmentID" class="form-select" id="departmentSelect">
+                                        <option value="">-- Select Department --</option>
+                                        @if (departments.Rows.Count > 0)
+                                        {
+                                            @foreach (DataRow row in departments.Rows)
+                                            {
+                                                <option value="@row["DepartmentID"]">@row["DepartmentName"]</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <span asp-validation-for="DepartmentID" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="MeetingVenueID" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </span>
+                                    <select asp-for="MeetingVenueID" class="form-select" id="venueSelect">
+                                        <option value="">-- Select Venue --</option>
+                                        @if (venues.Rows.Count > 0)
+                                        {
+                                            @foreach (DataRow row in venues.Rows)
+                                            {
+                                                <option value="@row["MeetingVenueID"]">@row["MeetingVenueName"]</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <span asp-validation-for="MeetingVenueID" class="text-danger"></span>
+                                <div id="venueAvailability" class="mt-1 small"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="MeetingDate" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-calendar"></i>
+                                    </span>
+                                    <input asp-for="MeetingDate" class="form-control" type="datetime-local"
+                                           id="meetingDateInput" />
+                                </div>
+                                <span asp-validation-for="MeetingDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="MeetingDescription" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-chat-text"></i>
+                            </span>
+                            <textarea asp-for="MeetingDescription" class="form-control" rows="3"
+                                      placeholder="Enter meeting description and agenda"></textarea>
+                        </div>
+                        <span asp-validation-for="MeetingDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-paperclip me-2"></i>Meeting Document (Optional)
+                        </label>
+                        <input type="file" name="documentFile" class="form-control"
+                               accept=".pdf,.doc,.docx,.txt" id="documentFile" />
+                        <div class="form-text">
+                            Upload meeting agenda, minutes, or related documents (PDF, DOC, DOCX, TXT - Max 5MB)
+                        </div>
+                        <div id="fileInfo" class="mt-2 small"></div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Meeting Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Ensure the selected venue is available at the scheduled time</li>
+                            <li>Provide clear description of meeting agenda and objectives</li>
+                            <li>Upload relevant documents for participants to review beforehand</li>
+                            <li>Consider participants' availability when scheduling</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to Meetings
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Schedule Meeting
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            // Set minimum date to current date/time
+            var now = new Date();
+            var localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 16);
+            $('#meetingDateInput').attr('min', localDateTime);
+
+            // Real-time venue availability check
+            var availabilityTimeout;
+            $('#venueSelect, #meetingDateInput').on('change', function() {
+                clearTimeout(availabilityTimeout);
+
+                var venueId = $('#venueSelect').val();
+                var meetingDate = $('#meetingDateInput').val();
+
+                if (venueId && meetingDate) {
+                    availabilityTimeout = setTimeout(function() {
+                        checkVenueAvailability(venueId, meetingDate);
+                    }, 500);
+                } else {
+                    $('#venueAvailability').empty();
+                }
+            });
+
+            // File selection feedback
+            $('#documentFile').on('change', function() {
+                var file = this.files[0];
+                var fileInfo = $('#fileInfo');
+
+                if (file) {
+                    var fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    var fileExt = file.name.split('.').pop().toLowerCase();
+                    var allowedExt = ['pdf', 'doc', 'docx', 'txt'];
+
+                    if (!allowedExt.includes(fileExt)) {
+                        fileInfo.html('<div class="text-danger"><i class="bi bi-x-circle me-1"></i>Invalid file type. Only PDF, DOC, DOCX, TXT allowed.</div>');
+                        $(this).val('');
+                    } else if (fileSize > 5) {
+                        fileInfo.html('<div class="text-danger"><i class="bi bi-x-circle me-1"></i>File size exceeds 5MB limit.</div>');
+                        $(this).val('');
+                    } else {
+                        fileInfo.html('<div class="text-success"><i class="bi bi-check-circle me-1"></i>Selected: ' + file.name + ' (' + fileSize + ' MB)</div>');
+                    }
+                } else {
+                    fileInfo.empty();
+                }
+            });
+
+            // Form submission with loading state
+            $('#meetingForm').on('submit', function() {
+                var submitBtn = $('#submitButton');
+                submitBtn.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Scheduling...');
+
+                // Re-enable button after 10 seconds in case of error
+                setTimeout(function() {
+                    submitBtn.prop('disabled', false)
+                        .html('<i class="bi bi-check-circle me-2"></i>Schedule Meeting');
+                }, 10000);
+            });
+        });
+
+        function checkVenueAvailability(venueId, meetingDate) {
+            var feedback = $('#venueAvailability');
+
+            $.post('/Meeting/CheckVenueAvailability', {
+                venueId: venueId,
+                meetingDate: meetingDate
+            }, function(response) {
+                if (response.error) {
+                    feedback.removeClass('text-success text-danger')
+                        .addClass('text-warning')
+                        .text('Error checking availability. Please try again.');
+                    return;
+                }
+
+                if (response.available) {
+                    feedback.removeClass('text-danger text-warning')
+                        .addClass('text-success')
+                        .html('<i class="bi bi-check-circle me-1"></i>Venue is available!');
+                } else {
+                    feedback.removeClass('text-success text-warning')
+                        .addClass('text-danger')
+                        .html('<i class="bi bi-x-circle me-1"></i>Venue is already booked at this time!');
+                }
+            });
+        }
+    </script>
+}

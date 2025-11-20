@@ -1,0 +1,234 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Meetings";
+    ViewData["PageTitle"] = "Meetings Management";
+    ViewData["PageDescription"] = "Schedule and manage organizational meetings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Meetings Management</h4>
+        <p class="text-muted mb-0">Schedule, track, and manage all organizational meetings</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Schedule Meeting
+        </a>
+        <a asp-action="Calendar" class="btn btn-outline-info">
+            <i class="bi bi-calendar me-2"></i>Calendar View
+        </a>
+        <button type="button" class="btn btn-success" onclick="exportToExcel()">
+            <i class="bi bi-file-earmark-excel me-2"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Search and Filter Bar -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-funnel me-2"></i>Search & Filters
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Meeting Type</label>
+                <select name="meetingTypeId" class="form-select">
+                    <option value="">All Types</option>
+                    @if (ViewBag.MeetingTypes != null)
+                    {
+                        @foreach (DataRow row in (ViewBag.MeetingTypes as DataTable).Rows)
+                        {
+                            <option value="@row["MeetingTypeID"]">@row["MeetingTypeName"]</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Department</label>
+                <select name="departmentId" class="form-select">
+                    <option value="">All Departments</option>
+                    @if (ViewBag.Departments != null)
+                    {
+                        @foreach (DataRow row in (ViewBag.Departments as DataTable).Rows)
+                        {
+                            <option value="@row["DepartmentID"]">@row["DepartmentName"]</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Venue</label>
+                <select name="venueId" class="form-select">
+                    <option value="">All Venues</option>
+                    @if (ViewBag.Venues != null)
+                    {
+                        @foreach (DataRow row in (ViewBag.Venues as DataTable).Rows)
+                        {
+                            <option value="@row["MeetingVenueID"]">@row["MeetingVenueName"]</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" name="searchText" class="form-control"
+                           placeholder="Search meetings..." value="@ViewBag.SearchText" />
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel me-2"></i>Apply Filters
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Meetings Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-calendar-event me-2"></i>
+            Scheduled Meetings
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" id="meetingsTable">
+                    <thead>
+                        <tr>
+                            <th width="80">#</th>
+                            <th>Date & Time</th>
+                            <th>Meeting Type</th>
+                            <th>Description</th>
+                            <th>Department</th>
+                            <th>Venue</th>
+                            <th width="100">Status</th>
+                            <th width="120">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (DataRow row in Model.Rows)
+                        {
+                            bool isCancelled = Convert.ToBoolean(row["IsCancelled"]);
+                            bool isPast = Convert.ToDateTime(row["MeetingDate"]) < DateTime.Now;
+
+                            <tr class="@(isCancelled ? "table-danger" : isPast ? "table-secondary" : "")">
+                                <td>@row["MeetingID"]</td>
+                                <td>
+                                    <div>
+                                        <strong>@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd, yyyy")</strong>
+                                    </div>
+                                    <small class="text-muted">@Convert.ToDateTime(row["MeetingDate"]).ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@row["MeetingTypeName"]</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row["MeetingDescription"].ToString()))
+                                    {
+                                        <span>@row["MeetingDescription"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No description</span>
+                                    }
+                                </td>
+                                <td>@row["DepartmentName"]</td>
+                                <td>@row["MeetingVenueName"]</td>
+                                <td>
+                                    @if (isCancelled)
+                                    {
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    }
+                                    else if (isPast)
+                                    {
+                                        <span class="badge bg-secondary">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Upcoming</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@row["MeetingID"]"
+                                           class="btn btn-sm btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (!isCancelled && !isPast)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@row["MeetingID"]"
+                                               class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Cancel" asp-route-id="@row["MeetingID"]"
+                                               class="btn btn-sm btn-outline-danger" title="Cancel">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                        }
+                                        <a asp-action="ManageAttendance" asp-route-id="@row["MeetingID"]"
+                                           class="btn btn-sm btn-outline-info" title="Attendance">
+                                            <i class="bi bi-people"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No Meetings Found</h5>
+                <p class="text-muted">Start by scheduling your first meeting.</p>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Schedule First Meeting
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportToExcel() {
+            // Build query string from current filters
+            let params = new URLSearchParams(window.location.search);
+            params.set('export', 'true');
+            window.location.href = '@Url.Action("ExportToExcel")?' + params.toString();
+        }
+
+        // Auto-submit filter on change
+        $('select[name="meetingTypeId"], select[name="departmentId"], select[name="venueId"]').on('change', function() {
+            $(this).closest('form').submit();
+        });
+    </script>
+}

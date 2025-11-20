@@ -1,0 +1,271 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Meeting Calendar";
+    ViewData["PageTitle"] = "Meeting Calendar";
+    ViewData["PageDescription"] = "Calendar view of all scheduled meetings";
+
+    int year = ViewBag.Year;
+    int month = ViewBag.Month;
+    string monthName = ViewBag.MonthName;
+    DateTime firstDay = new DateTime(year, month, 1);
+    int daysInMonth = DateTime.DaysInMonth(year, month);
+    DayOfWeek firstDayOfWeek = firstDay.DayOfWeek;
+    int startingDayOffset = (int)firstDayOfWeek == 0 ? 6 : (int)firstDayOfWeek - 1; // Adjust for Monday start
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Meeting Calendar</h4>
+        <p class="text-muted mb-0">Visual overview of scheduled meetings</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Schedule Meeting
+        </a>
+        <a asp-action="Index" class="btn btn-outline-info">
+            <i class="bi bi-list me-2"></i>List View
+        </a>
+    </div>
+</div>
+
+<!-- Calendar Navigation -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <a asp-action="Calendar" asp-route-year="@year" asp-route-month="@(month - 1)"
+                   class="btn btn-outline-secondary @(month == 1 ? "disabled" : "")">
+                    <i class="bi bi-chevron-left me-2"></i>Previous Month
+                </a>
+            </div>
+            <div class="col-md-6 text-center">
+                <h4 class="mb-0">@monthName</h4>
+            </div>
+            <div class="col-md-3 text-end">
+                <a asp-action="Calendar" asp-route-year="@year" asp-route-month="@(month + 1)"
+                   class="btn btn-outline-secondary @(month == 12 ? "disabled" : "")">
+                    Next Month<i class="bi bi-chevron-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calendar Grid -->
+<div class="card shadow">
+    <div class="card-body p-0">
+        <!-- Weekday Headers -->
+        <div class="row g-0 text-center bg-light">
+            <div class="col p-2 border"><strong>Mon</strong></div>
+            <div class="col p-2 border"><strong>Tue</strong></div>
+            <div class="col p-2 border"><strong>Wed</strong></div>
+            <div class="col p-2 border"><strong>Thu</strong></div>
+            <div class="col p-2 border"><strong>Fri</strong></div>
+            <div class="col p-2 border weekend"><strong>Sat</strong></div>
+            <div class="col p-2 border weekend"><strong>Sun</strong></div>
+        </div>
+
+        <!-- Calendar Days -->
+        <div class="row g-0">
+            @for (int day = 1; day <= daysInMonth + startingDayOffset; day++)
+            {
+                if (day <= startingDayOffset)
+                {
+                    // Empty cells before the first day of the month
+                    <div class="col p-3 border calendar-day empty"></div>
+                }
+                else
+                {
+                    int currentDay = day - startingDayOffset;
+                    DateTime currentDate = new DateTime(year, month, currentDay);
+                    bool isToday = currentDate.Date == DateTime.Today.Date;
+                    bool isPast = currentDate.Date < DateTime.Today.Date;
+
+                    // Get meetings for this day
+                    var dayMeetings = Model.Select().Cast<DataRow>()
+                        .Where(row => Convert.ToDateTime(row["MeetingDate"]).Date == currentDate.Date)
+                        .ToList();
+
+                    <div class="col p-2 border calendar-day @(isToday ? "today" : "") @(isPast ? "past" : "")">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span class="day-number @(isToday ? "badge bg-primary" : "")">@(currentDay)</span>
+                            @if (dayMeetings.Any())
+                            {
+                                <span class="badge bg-info" title="@dayMeetings.Count meeting(s)">@dayMeetings.Count</span>
+                            }
+                        </div>
+
+                        @if (dayMeetings.Any())
+                        {
+                            <div class="meetings-list">
+                                @foreach (var meeting in dayMeetings.Take(3)) // Limit to 3 meetings per day
+                                {
+                                    bool isCancelled = Convert.ToBoolean(meeting["IsCancelled"]);
+                                    string meetingType = meeting["MeetingTypeName"].ToString();
+                                    string meetingDesc = meeting["MeetingDescription"].ToString();
+                                    string displayText = string.IsNullOrEmpty(meetingDesc) ? meetingType :
+                                        (meetingDesc.Length > 20 ? meetingDesc.Substring(0, 20) + "..." : meetingDesc);
+
+                                    <div class="meeting-item @(isCancelled ? "cancelled" : "")">
+                                        <small>
+                                            <strong>@Convert.ToDateTime(meeting["MeetingDate"]).ToString("HH:mm")</strong>
+                                            @if (isCancelled)
+                                            {
+                                                <i class="bi bi-x-circle text-danger ms-1"></i>
+                                            }
+                                        </small><br>
+                                        <small class="text-muted" title="@meetingDesc">@displayText</small>
+                                    </div>
+                                }
+
+                                @if (dayMeetings.Count > 3)
+                                {
+                                    <div class="text-muted">
+                                        <small><i class="bi bi-three-dots"></i> +@(dayMeetings.Count - 3) more</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                // Start new row after Sunday
+                if ((day - startingDayOffset) % 7 == 0 && day > startingDayOffset)
+                {
+                    @:</div><div class="row g-0">
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Meeting Summary -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-bar-chart me-2"></i>
+            Monthly Summary - @monthName
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <h4 class="text-primary">@Model.Rows.Count</h4>
+                    <small class="text-muted">Total Meetings</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                @{
+                    var upcomingMeetings = Model.Select().Cast<DataRow>()
+                        .Count(row => Convert.ToDateTime(row["MeetingDate"]).Date >= DateTime.Today.Date && !Convert.ToBoolean(row["IsCancelled"]));
+                }
+                <div class="stat-card">
+                    <h4 class="text-success">@upcomingMeetings</h4>
+                    <small class="text-muted">Upcoming</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                @{
+                    var cancelledMeetings = Model.Select().Cast<DataRow>()
+                        .Count(row => Convert.ToBoolean(row["IsCancelled"]));
+                }
+                <div class="stat-card">
+                    <h4 class="text-danger">@cancelledMeetings</h4>
+                    <small class="text-muted">Cancelled</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                @{
+                    var pastMeetings = Model.Select().Cast<DataRow>()
+                        .Count(row => Convert.ToDateTime(row["MeetingDate"]).Date < DateTime.Today.Date && !Convert.ToBoolean(row["IsCancelled"]));
+                }
+                <div class="stat-card">
+                    <h4 class="text-secondary">@pastMeetings</h4>
+                    <small class="text-muted">Completed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .calendar-day {
+        min-height: 120px;
+        position: relative;
+    }
+
+    .calendar-day.empty {
+        background-color: #f8f9fa;
+    }
+
+    .calendar-day.today {
+        background-color: #e7f3ff;
+    }
+
+    .calendar-day.past {
+        background-color: #f8f9fa;
+    }
+
+    .calendar-day.weekend {
+        background-color: #f8f9fa;
+    }
+
+    .day-number {
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .meetings-list {
+        font-size: 0.75rem;
+    }
+
+    .meeting-item {
+        margin-bottom: 2px;
+        padding: 2px;
+        border-radius: 3px;
+        background-color: #f8f9fa;
+    }
+
+    .meeting-item.cancelled {
+        text-decoration: line-through;
+        opacity: 0.7;
+    }
+
+    .stat-card {
+        padding: 1rem;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+    }
+
+    .stat-card h4 {
+        margin-bottom: 0.25rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add hover effects to meeting items
+            $('.meeting-item').hover(
+                function() {
+                    $(this).css('background-color', '#e9ecef');
+                },
+                function() {
+                    $(this).css('background-color', '#f8f9fa');
+                }
+            );
+
+            // Quick navigation to specific dates
+            $('.calendar-day:not(.empty)').on('click', function() {
+                var dayNumber = $(this).find('.day-number').text();
+                if (dayNumber && !$(this).hasClass('empty')) {
+                    // Could implement date-specific filtering here
+                    console.log('Clicked day:', dayNumber);
+                }
+            });
+        });
+    </script>
+}

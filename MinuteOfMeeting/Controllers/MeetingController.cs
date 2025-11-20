@@ -518,6 +518,33 @@ namespace MinuteOfMeeting.Controllers
             }
         }
 
+        // GET: Meeting/ExportToExcel
+        public IActionResult ExportToExcel(int? meetingTypeId, int? departmentId, int? venueId,
+            DateTime? startDate, DateTime? endDate, string searchText)
+        {
+            try
+            {
+                DataTable dt = MeetingDAL.SelectWithFilters(
+                    startDate: startDate,
+                    endDate: endDate,
+                    meetingTypeID: meetingTypeId,
+                    meetingVenueID: venueId,
+                    departmentID: departmentId,
+                    searchKeyword: searchText);
+
+                byte[] fileBytes = ExportHelper.ExportMeetingsToExcel(dt);
+
+                return File(fileBytes,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            $"Meetings_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error exporting meetings: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         private void PopulateDropdowns()
         {
             ViewBag.MeetingTypes = GetMeetingTypesDropdown();

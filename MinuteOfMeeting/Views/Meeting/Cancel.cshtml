@@ -1,0 +1,170 @@
+@using System.Data
+@model DataTable
+@{
+    ViewData["Title"] = "Cancel Meeting";
+    ViewData["PageTitle"] = "Cancel Meeting";
+    ViewData["PageDescription"] = "Cancel this scheduled meeting";
+
+    DataRow meeting = Model.Rows[0];
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Cancel Meeting
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. The meeting will be marked as cancelled and all participants will be notified.
+                </div>
+
+                <!-- Meeting Information -->
+                <div class="card bg-light mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Meeting Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Meeting ID:</strong><br>
+                                #@meeting["MeetingID"]
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date & Time:</strong><br>
+                                @Convert.ToDateTime(meeting["MeetingDate"]).ToString("MMMM dd, yyyy 'at' HH:mm")
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Meeting Type:</strong><br>
+                                <span class="badge bg-info">@meeting["MeetingTypeName"]</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Department:</strong><br>
+                                @meeting["DepartmentName"]
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Venue:</strong><br>
+                                @meeting["MeetingVenueName"]
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong><br>
+                                <span class="badge bg-success">Scheduled</span>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(meeting["MeetingDescription"].ToString()))
+                        {
+                            <hr>
+                            <div>
+                                <strong>Description:</strong><br>
+                                @meeting["MeetingDescription"]
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Cancellation Form -->
+                <form asp-action="Cancel" method="post" id="cancelForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@meeting["MeetingID"]" />
+
+                    <div class="form-group mb-4">
+                        <label for="cancellationReason" class="form-label fw-bold">
+                            <i class="bi bi-chat-text me-2"></i>Cancellation Reason <span class="text-danger">*</span>
+                        </label>
+                        <textarea name="cancellationReason" class="form-control" rows="4"
+                                  placeholder="Please provide a detailed reason for cancelling this meeting..."
+                                  id="cancellationReason" required maxlength="500"></textarea>
+                        <div class="form-text">
+                            This reason will be visible to all participants and stored for future reference.
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle me-2"></i>Before you cancel:</h6>
+                        <ul class="mb-0">
+                            <li>Notify all participants about the cancellation</li>
+                            <li>Consider rescheduling instead of cancelling if possible</li>
+                            <li>Document any decisions or outcomes that were expected from this meeting</li>
+                            <li>Update any project timelines that depend on this meeting</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="@Url.Action("Details", new { id = meeting["MeetingID"] })" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to Details
+                        </a>
+                        <button type="submit" class="btn btn-danger" id="confirmCancelButton">
+                            <i class="bi bi-x-circle me-2"></i>
+                            Confirm Cancellation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Character counter for cancellation reason
+            $('#cancellationReason').on('input', function() {
+                var maxLength = 500;
+                var currentLength = $(this).val().length;
+                var remaining = maxLength - currentLength;
+
+                // Add character count display
+                if ($('#charCount').length === 0) {
+                    $(this).after('<small id="charCount" class="form-text">Characters remaining: ' + remaining + '</small>');
+                } else {
+                    $('#charCount').text('Characters remaining: ' + remaining);
+                }
+
+                if (remaining < 50) {
+                    $('#charCount').addClass('text-warning');
+                } else {
+                    $('#charCount').removeClass('text-warning');
+                }
+            });
+
+            // Form submission with confirmation
+            $('#cancelForm').on('submit', function(e) {
+                var reason = $('#cancellationReason').val().trim();
+
+                if (reason.length < 10) {
+                    e.preventDefault();
+                    alert('Please provide a detailed cancellation reason (minimum 10 characters).');
+                    return false;
+                }
+
+                var confirmCancel = confirm('Are you absolutely sure you want to cancel this meeting?\n\nThis action cannot be undone and will notify all participants.');
+                if (!confirmCancel) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Show loading state
+                var submitBtn = $('#confirmCancelButton');
+                submitBtn.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Cancelling...');
+
+                // Re-enable after 10 seconds in case of error
+                setTimeout(function() {
+                    submitBtn.prop('disabled', false)
+                        .html('<i class="bi bi-x-circle me-2"></i>Confirm Cancellation');
+                }, 10000);
+            });
+        });
+    </script>
+}

@@ -46,7 +46,18 @@ namespace MinuteOfMeeting.Helpers
                         }
                         else
                         {
-                            cell.Value = (XLCellValue)value;
+                            if (value is string str)
+                                cell.Value = str;
+                            else if (value is int num)
+                                cell.Value = num;
+                            else if (value is double dbl)
+                                cell.Value = dbl;
+                            else if (value is DateTime dateValue)
+                                cell.Value = dateValue;
+                            else if (value is bool b)
+                                cell.Value = b;
+                            else
+                                cell.Value = value?.ToString() ?? "";
                         }
 
                         // Add border to data cells
@@ -169,7 +180,19 @@ namespace MinuteOfMeeting.Helpers
                         }
                         else
                         {
-                            cell.Value = (XLCellValue)(value ?? "");
+                            var val = value ?? "";
+                            if (val is string str)
+                                cell.Value = str;
+                            else if (val is int num)
+                                cell.Value = num;
+                            else if (val is double dbl)
+                                cell.Value = dbl;
+                            else if (val is DateTime dateTime)
+                                cell.Value = dateTime;
+                            else if (val is bool b)
+                                cell.Value = b;
+                            else
+                                cell.Value = val.ToString();
                         }
 
                         // Add border
@@ -294,7 +317,19 @@ namespace MinuteOfMeeting.Helpers
                         for (int col = 0; col < table.Value.Columns.Count; col++)
                         {
                             var cell = worksheet.Cell(row + 2, col + 1);
-                            cell.Value = (XLCellValue)(table.Value.Rows[row][col] ?? "");
+                            var val = table.Value.Rows[row][col] ?? "";
+                            if (val is string str)
+                                cell.Value = str;
+                            else if (val is int num)
+                                cell.Value = num;
+                            else if (val is double dbl)
+                                cell.Value = dbl;
+                            else if (val is DateTime dateTime)
+                                cell.Value = dateTime;
+                            else if (val is bool b)
+                                cell.Value = b;
+                            else
+                                cell.Value = val.ToString();
                         }
                     }
 
