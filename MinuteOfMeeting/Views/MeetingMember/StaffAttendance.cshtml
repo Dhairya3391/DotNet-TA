@@ -1,0 +1,201 @@
+@model System.Data.DataTable
+@using System.Data
+@{
+    ViewData["Title"] = "Staff Attendance";
+    DataRow staff = ViewBag.Staff as DataRow;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <!-- Staff Info Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Staff Member Information
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (staff != null)
+                {
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> @staff["StaffName"]</p>
+                            <p><strong>Email:</strong> <a href="mailto:@staff["EmailAddress"]">@staff["EmailAddress"]</a></p>
+                            <p><strong>Mobile:</strong> @staff["MobileNo"]</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Department:</strong> @staff["DepartmentName"]</p>
+                            <p><strong>Remarks:</strong> @staff["Remarks"]</p>
+                            <p><strong>Created:</strong> @Convert.ToDateTime(staff["Created"]).ToString("yyyy-MM-dd")</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Attendance Summary -->
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            var totalMeetings = Model.Rows.Count;
+            var presentCount = Model.AsEnumerable().Count(row => Convert.ToBoolean(row["IsPresent"]));
+            var absentCount = totalMeetings - presentCount;
+            var attendanceRate = totalMeetings > 0 ? (double)presentCount / totalMeetings * 100 : 0;
+
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center border-primary">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@totalMeetings</h5>
+                            <p class="card-text">Total Meetings</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-success">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">@presentCount</h5>
+                            <p class="card-text">Attended</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-danger">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger">@absentCount</h5>
+                            <p class="card-text">Missed</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-info">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">@attendanceRate:F1%</h5>
+                            <p class="card-text">Attendance Rate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Meeting History -->
+        <div class="card shadow">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Meeting Attendance History
+                    @if (Model != null && Model.Rows.Count > 0)
+                    {
+                        <span class="badge bg-light text-success ms-2">@Model.Rows.Count meetings</span>
+                    }
+                </h5>
+                <div>
+                    <a href="@Url.Action("Index")" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Attendance
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (Model != null && Model.Rows.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Meeting Date</th>
+                                    <th>Meeting Type</th>
+                                    <th>Venue</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Attendance</th>
+                                    <th>Remarks</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow row in Model.Rows)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-calendar-event me-1"></i>
+                                            @Convert.ToDateTime(row["MeetingDate"]).ToString("yyyy-MM-dd HH:mm")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">@row["MeetingTypeName"]</span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            @row["MeetingVenueName"]
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(row["MeetingDescription"].ToString()))
+                                            {
+                                                <span class="text-muted">No description</span>
+                                            }
+                                            else
+                                            {
+                                                @row["MeetingDescription"]
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (Convert.ToBoolean(row["IsPresent"]))
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    Present
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle me-1"></i>
+                                                    Absent
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(row["Remarks"].ToString()))
+                                            {
+                                                <span class="text-muted">No remarks</span>
+                                            }
+                                            else
+                                            {
+                                                @row["Remarks"]
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (Convert.ToBoolean(row["IsCancelled"]))
+                                            {
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            }
+                                            else if (Convert.ToDateTime(row["MeetingDate"]) < DateTime.Now)
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info">Upcoming</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">No Meeting History</h5>
+                        <p class="text-muted">This staff member has not been assigned to any meetings yet.</p>
+                        <a href="@Url.Action("Index", "Meeting")" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Schedule Meeting
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

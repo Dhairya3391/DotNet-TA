@@ -1,0 +1,260 @@
+@model System.Data.DataTable
+@using System.Data
+@{
+    ViewData["Title"] = "Attendance Management";
+    ViewData["PageTitle"] = "Attendance Management";
+    ViewData["PageDescription"] = "Manage meeting attendance and generate reports";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Meetings
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalMeetings">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Upcoming
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="upcomingMeetings">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Completed
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="completedMeetings">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Cancelled
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="cancelledMeetings">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Report Section -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>
+                    Attendance Report
+                </h5>
+                <div>
+                    <a href="@Url.Action("AttendanceReport")" class="btn btn-light btn-sm">
+                        <i class="bi bi-calendar-range me-1"></i>
+                        Generate Report
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" action="@Url.Action("AttendanceReport")" class="row g-3">
+                    <div class="col-md-5">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" name="startDate" id="startDate" class="form-control"
+                               value="@DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-5">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" name="endDate" id="endDate" class="form-control"
+                               value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-1"></i>
+                                Generate
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Upcoming Meetings for Attendance -->
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Upcoming Meetings - Manage Attendance
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model != null && Model.Rows.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Meeting Date</th>
+                                    <th>Type</th>
+                                    <th>Venue</th>
+                                    <th>Department</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow row in Model.Rows)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-calendar-event me-1"></i>
+                                            @Convert.ToDateTime(row["MeetingDate"]).ToString("yyyy-MM-dd HH:mm")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                @row["MeetingTypeName"]
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            @row["MeetingVenueName"]
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-building me-1"></i>
+                                            @row["DepartmentName"]
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(row["MeetingDescription"].ToString()))
+                                            {
+                                                <span class="text-muted">No description</span>
+                                            }
+                                            else
+                                            {
+                                                @row["MeetingDescription"]
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="@Url.Action("ManageAttendance", new { id = row["MeetingID"] })"
+                                                   class="btn btn-primary btn-sm" title="Manage Attendance">
+                                                    <i class="bi bi-check2-square"></i>
+                                                </a>
+                                                <a href="@Url.Action("AttendanceDetails", new { id = row["MeetingID"] })"
+                                                   class="btn btn-info btn-sm" title="View Attendance">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">No Upcoming Meetings</h5>
+                        <p class="text-muted">There are no scheduled meetings that require attendance management.</p>
+                        <a href="@Url.Action("Create", "Meeting")" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Schedule New Meeting
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load statistics
+            loadMeetingStatistics();
+        });
+
+        function loadMeetingStatistics() {
+            $.ajax({
+                url: '@Url.Action("GetMeetingStatistics", "MeetingMember")',
+                type: 'POST',
+                success: function(data) {
+                    if (!data.error) {
+                        $('#totalMeetings').text(data.totalMeetings);
+                        $('#upcomingMeetings').text(data.upcomingMeetings);
+                        $('#completedMeetings').text(data.completedMeetings);
+                        $('#cancelledMeetings').text(data.cancelledMeetings);
+                    } else {
+                        $('.card-body .h5').text('N/A');
+                    }
+                },
+                error: function() {
+                    $('.card-body .h5').text('N/A');
+                }
+            });
+        }
+
+        // Set date constraints
+        document.getElementById('endDate').addEventListener('change', function() {
+            var startDate = document.getElementById('startDate');
+            startDate.max = this.value;
+        });
+
+        document.getElementById('startDate').addEventListener('change', function() {
+            var endDate = document.getElementById('endDate');
+            endDate.min = this.value;
+        });
+    </script>
+}

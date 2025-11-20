@@ -41,10 +41,14 @@
                     {
                         @foreach (DataRow row in (ViewBag.MeetingTypes as DataTable).Rows)
                         {
-                            <option value="@row["MeetingTypeID"]"
-                                    @(ViewBag.MeetingTypeId?.ToString() == row["MeetingTypeID"].ToString() ? "selected" : "")>
-                                @row["MeetingTypeName"]
-                            </option>
+                            @if (ViewBag.MeetingTypeId?.ToString() == row["MeetingTypeID"].ToString())
+                            {
+                                <option value="@row["MeetingTypeID"]" selected>@row["MeetingTypeName"]</option>
+                            }
+                            else
+                            {
+                                <option value="@row["MeetingTypeID"]">@row["MeetingTypeName"]</option>
+                            }
                         }
                     }
                 </select>
@@ -57,10 +61,14 @@
                     {
                         @foreach (DataRow row in (ViewBag.Departments as DataTable).Rows)
                         {
-                            <option value="@row["DepartmentID"]"
-                                    @(ViewBag.DepartmentId?.ToString() == row["DepartmentID"].ToString() ? "selected" : "")>
-                                @row["DepartmentName"]
-                            </option>
+                            @if (ViewBag.DepartmentId?.ToString() == row["DepartmentID"].ToString())
+                            {
+                                <option value="@row["DepartmentID"]" selected>@row["DepartmentName"]</option>
+                            }
+                            else
+                            {
+                                <option value="@row["DepartmentID"]">@row["DepartmentName"]</option>
+                            }
                         }
                     }
                 </select>
@@ -73,10 +81,14 @@
                     {
                         @foreach (DataRow row in (ViewBag.Venues as DataTable).Rows)
                         {
-                            <option value="@row["MeetingVenueID"]"
-                                    @(ViewBag.VenueId?.ToString() == row["MeetingVenueID"].ToString() ? "selected" : "")>
-                                @row["MeetingVenueName"]
-                            </option>
+                            @if (ViewBag.VenueId?.ToString() == row["MeetingVenueID"].ToString())
+                            {
+                                <option value="@row["MeetingVenueID"]" selected>@row["MeetingVenueName"]</option>
+                            }
+                            else
+                            {
+                                <option value="@row["MeetingVenueID"]">@row["MeetingVenueName"]</option>
+                            }
                         }
                     }
                 </select>

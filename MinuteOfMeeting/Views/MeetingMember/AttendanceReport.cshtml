@@ -1,0 +1,273 @@
+@model System.Data.DataTable
+@using System.Data
+@{
+    ViewData["Title"] = "Attendance Report";
+    ViewData["PageTitle"] = "Attendance Report";
+    ViewData["PageDescription"] = "Generate and export attendance reports";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <!-- Report Filters -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel me-2"></i>
+                    Report Filters
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" name="startDate" id="startDate" class="form-control"
+                               value="@ViewBag.StartDate" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" name="endDate" id="endDate" class="form-control"
+                               value="@ViewBag.EndDate" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="bi bi-search me-1"></i>
+                                Generate Report
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="exportReport()">
+                                <i class="bi bi-download me-1"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Report Summary -->
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            var totalRecords = Model.Rows.Count;
+            var presentCount = Model.AsEnumerable().Count(row => Convert.ToBoolean(row["IsPresent"]));
+            var absentCount = totalRecords - presentCount;
+            var uniqueMeetings = Model.AsEnumerable().Select(row => row["MeetingID"]).Distinct().Count();
+            var uniqueStaff = Model.AsEnumerable().Select(row => row["StaffID"]).Distinct().Count();
+            var attendanceRate = totalRecords > 0 ? (double)presentCount / totalRecords * 100 : 0;
+
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Records
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@totalRecords</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-list fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Present
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@presentCount</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Attendance Rate
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@attendanceRate:F1%</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Unique Meetings
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@uniqueMeetings</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Report Data -->
+        <div class="card shadow">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-table me-2"></i>
+                    Attendance Data
+                    @if (Model != null && Model.Rows.Count > 0)
+                    {
+                        <span class="badge bg-light text-success ms-2">@Model.Rows.Count records</span>
+                    }
+                </h5>
+                <div>
+                    <a href="@Url.Action("Index")" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (Model != null && Model.Rows.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="attendanceTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Meeting Date</th>
+                                    <th>Meeting Type</th>
+                                    <th>Meeting Venue</th>
+                                    <th>Department</th>
+                                    <th>Staff Name</th>
+                                    <th>Staff Email</th>
+                                    <th class="text-center">Attendance</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow row in Model.Rows)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Convert.ToDateTime(row["MeetingDate"]).ToString("yyyy-MM-dd HH:mm")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">@row["MeetingTypeName"]</span>
+                                        </td>
+                                        <td>@row["MeetingVenueName"]</td>
+                                        <td>@row["DepartmentName"]</td>
+                                        <td>@row["StaffName"]</td>
+                                        <td>@row["EmailAddress"]</td>
+                                        <td class="text-center">
+                                            @if (Convert.ToBoolean(row["IsPresent"]))
+                                            {
+                                                <span class="badge bg-success">Present</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Absent</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(row["Remarks"].ToString()))
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                            else
+                                            {
+                                                @row["Remarks"]
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-file-earmark-text display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">No Data Available</h5>
+                        <p class="text-muted">No attendance records found for the selected date range.</p>
+                        <a href="@Url.Action("Index")" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Back to Attendance
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            if ($('#attendanceTable').length) {
+                $('#attendanceTable').DataTable({
+                    pageLength: 25,
+                    responsive: true,
+                    order: [[0, 'desc']], // Order by meeting date descending
+                    dom: '<"row"<"col-sm-12"tr>>' +
+                         '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    language: {
+                        search: "Search:",
+                        lengthMenu: "Show _MENU_ entries",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                        paginate: {
+                            first: "First",
+                            last: "Last",
+                            next: "Next",
+                            previous: "Previous"
+                        }
+                    }
+                });
+            }
+        });
+
+        function exportReport() {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+
+            if (startDate && endDate) {
+                window.location.href = '@Url.Action("ExportAttendance")?startDate=' + startDate + '&endDate=' + endDate;
+            } else {
+                alert('Please select both start and end dates.');
+            }
+        }
+
+        // Set date constraints
+        document.getElementById('endDate').addEventListener('change', function() {
+            var startDate = document.getElementById('startDate');
+            startDate.max = this.value;
+        });
+
+        document.getElementById('startDate').addEventListener('change', function() {
+            var endDate = document.getElementById('endDate');
+            endDate.min = this.value;
+        });
+    </script>
+}

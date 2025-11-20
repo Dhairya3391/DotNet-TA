@@ -233,5 +233,63 @@ namespace MinuteOfMeeting.DAL
                 return Convert.IsDBNull(outputParam.Value) ? 0.0 : Convert.ToDouble(outputParam.Value);
             }
         }
+
+        /// <summary>
+        /// Get attendance summary for date range
+        /// </summary>
+        public static DataTable GetAttendanceSummary(DateTime startDate, DateTime endDate)
+        {
+            using (SqlConnection conn = DBHelper.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("PR_MeetingMember_GetAttendanceSummary", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@StartDate", startDate);
+                cmd.Parameters.AddWithValue("@EndDate", endDate);
+
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                return dt;
+            }
+        }
+
+        /// <summary>
+        /// Get staff participation statistics
+        /// </summary>
+        public static DataTable GetStaffParticipationStats(int topCount = 10)
+        {
+            using (SqlConnection conn = DBHelper.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("PR_MeetingMember_GetStaffParticipationStats", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@TopCount", topCount);
+
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                return dt;
+            }
+        }
+
+        /// <summary>
+        /// Get monthly attendance trend
+        /// </summary>
+        public static DataTable GetMonthlyAttendanceTrend(int months = 12)
+        {
+            using (SqlConnection conn = DBHelper.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("PR_MeetingMember_GetMonthlyTrend", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Months", months);
+
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                return dt;
+            }
+        }
     }
 }
