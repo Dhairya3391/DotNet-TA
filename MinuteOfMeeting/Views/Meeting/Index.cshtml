@@ -41,7 +41,10 @@
                     {
                         @foreach (DataRow row in (ViewBag.MeetingTypes as DataTable).Rows)
                         {
-                            <option value="@row["MeetingTypeID"]">@row["MeetingTypeName"]</option>
+                            <option value="@row["MeetingTypeID"]"
+                                    @(ViewBag.MeetingTypeId?.ToString() == row["MeetingTypeID"].ToString() ? "selected" : "")>
+                                @row["MeetingTypeName"]
+                            </option>
                         }
                     }
                 </select>
@@ -54,7 +57,10 @@
                     {
                         @foreach (DataRow row in (ViewBag.Departments as DataTable).Rows)
                         {
-                            <option value="@row["DepartmentID"]">@row["DepartmentName"]</option>
+                            <option value="@row["DepartmentID"]"
+                                    @(ViewBag.DepartmentId?.ToString() == row["DepartmentID"].ToString() ? "selected" : "")>
+                                @row["DepartmentName"]
+                            </option>
                         }
                     }
                 </select>
@@ -67,7 +73,10 @@
                     {
                         @foreach (DataRow row in (ViewBag.Venues as DataTable).Rows)
                         {
-                            <option value="@row["MeetingVenueID"]">@row["MeetingVenueName"]</option>
+                            <option value="@row["MeetingVenueID"]"
+                                    @(ViewBag.VenueId?.ToString() == row["MeetingVenueID"].ToString() ? "selected" : "")>
+                                @row["MeetingVenueName"]
+                            </option>
                         }
                     }
                 </select>
@@ -226,9 +235,23 @@
             window.location.href = '@Url.Action("ExportToExcel")?' + params.toString();
         }
 
-        // Auto-submit filter on change
+        // Auto-submit filter on change (but preserve other filter values)
         $('select[name="meetingTypeId"], select[name="departmentId"], select[name="venueId"]').on('change', function() {
-            $(this).closest('form').submit();
+            // Get current form values to preserve them
+            const form = $(this).closest('form');
+            const searchInput = form.find('input[name="searchText"]');
+            const startDateInput = form.find('input[name="startDate"]');
+            const endDateInput = form.find('input[name="endDate"]');
+
+            // If search is empty and other filters are not selected, don't auto-submit
+            if (searchInput.val() === '' &&
+                startDateInput.val() === '' &&
+                endDateInput.val() === '' &&
+                form.find('select').filter(function() { return this.value !== ''; }).length <= 1) {
+                return; // Don't auto-submit if only this filter is selected
+            }
+
+            form.submit();
         });
     </script>
 }

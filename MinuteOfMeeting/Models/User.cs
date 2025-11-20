@@ -25,12 +25,6 @@ namespace MinuteOfMeeting.Models
         [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Confirm password is required")]
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
-        [Compare("Password", ErrorMessage = "Password and confirmation password do not match")]
-        public string ConfirmPassword { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "Role is required")]
         [Display(Name = "Role")]
         public string Role { get; set; } = string.Empty;

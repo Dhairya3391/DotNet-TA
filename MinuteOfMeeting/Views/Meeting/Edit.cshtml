@@ -105,7 +105,9 @@
                                         <i class="bi bi-calendar"></i>
                                     </span>
                                     <input asp-for="MeetingDate" class="form-control" type="datetime-local"
-                                           id="meetingDateInput" />
+                                           id="meetingDateInput"
+                                           data-val="true"
+                                           data-val-futuredate="Meeting date must be today or in the future." />
                                 </div>
                                 <span asp-validation-for="MeetingDate" class="text-danger"></span>
                             </div>

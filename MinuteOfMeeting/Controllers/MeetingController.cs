@@ -103,15 +103,24 @@ namespace MinuteOfMeeting.Controllers
                     model.DocumentPath = await FileUploadHelper.UploadFile(documentFile, "meeting-docs");
                 }
 
-                int newId = MeetingDAL.Insert(model);
-                if (newId > 0)
+                try
                 {
-                    TempData["Success"] = "Meeting scheduled successfully!";
-                    return RedirectToAction("Index");
+                    int newId = MeetingDAL.Insert(model);
+                    if (newId > 0)
+                    {
+                        TempData["Success"] = $"Meeting scheduled successfully! (Meeting ID: {newId})";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Failed to schedule meeting - no records were affected.";
+                        PopulateDropdowns();
+                        return View(model);
+                    }
                 }
-                else
+                catch (SqlException sqlEx)
                 {
-                    TempData["Error"] = "Failed to schedule meeting.";
+                    TempData["Error"] = $"Database error: {sqlEx.Message}";
                     PopulateDropdowns();
                     return View(model);
                 }
@@ -209,15 +218,24 @@ namespace MinuteOfMeeting.Controllers
                     model.DocumentPath = await FileUploadHelper.UploadFile(documentFile, "meeting-docs");
                 }
 
-                bool success = MeetingDAL.Update(model) > 0;
-                if (success)
+                try
                 {
-                    TempData["Success"] = "Meeting updated successfully!";
-                    return RedirectToAction("Index");
+                    int rowsAffected = MeetingDAL.Update(model);
+                    if (rowsAffected > 0)
+                    {
+                        TempData["Success"] = $"Meeting updated successfully! ({rowsAffected} record(s) affected)";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["Warning"] = "No changes were made to the meeting.";
+                        PopulateDropdowns();
+                        return View(model);
+                    }
                 }
-                else
+                catch (SqlException sqlEx)
                 {
-                    TempData["Error"] = "Failed to update meeting.";
+                    TempData["Error"] = $"Database error: {sqlEx.Message}";
                     PopulateDropdowns();
                     return View(model);
                 }
@@ -276,15 +294,21 @@ namespace MinuteOfMeeting.Controllers
                     }
                 }
 
-                int rowsAffected = MeetingDAL.Delete(id);
-                bool success = rowsAffected > 0;
-                if (success)
+                try
                 {
-                    TempData["Success"] = "Meeting deleted successfully!";
+                    int rowsAffected = MeetingDAL.Delete(id);
+                    if (rowsAffected > 0)
+                    {
+                        TempData["Success"] = $"Meeting deleted successfully! ({rowsAffected} record(s) affected)";
+                    }
+                    else
+                    {
+                        TempData["Warning"] = "Meeting was not found or already deleted.";
+                    }
                 }
-                else
+                catch (SqlException sqlEx)
                 {
-                    TempData["Error"] = "Failed to delete meeting.";
+                    TempData["Error"] = $"Database error during deletion: {sqlEx.Message}";
                 }
             }
             catch (Exception ex)
@@ -410,32 +434,65 @@ namespace MinuteOfMeeting.Controllers
         {
             try
             {
+                // Validate meeting exists
+                DataTable meetingDt = MeetingDAL.SelectByPK(meetingId);
+                if (meetingDt.Rows.Count == 0)
+                {
+                    TempData["Error"] = "Meeting not found.";
+                    return RedirectToAction("Index");
+                }
+
                 // Clear existing attendees
                 MeetingMemberDAL.DeleteByMeeting(meetingId);
 
                 // Add new attendees
                 if (selectedStaff != null && selectedStaff.Count > 0)
                 {
+                    int successCount = 0;
                     for (int i = 0; i < selectedStaff.Count; i++)
                     {
-                        int staffId = selectedStaff[i];
-                        bool isPresent = attendanceStatus != null && i < attendanceStatus.Count &&
-                                        attendanceStatus[i] == "present";
-                        string remark = (remarks != null && i < remarks.Count) ? remarks[i] : "";
-
-                        MeetingMember attendance = new MeetingMember
+                        try
                         {
-                            MeetingID = meetingId,
-                            StaffID = staffId,
-                            IsPresent = isPresent,
-                            Remarks = remark
-                        };
+                            int staffId = selectedStaff[i];
+                            bool isPresent = attendanceStatus != null && i < attendanceStatus.Count &&
+                                            attendanceStatus[i] == "present";
+                            string remark = (remarks != null && i < remarks.Count) ? remarks[i] : "";
 
-                        MeetingMemberDAL.Insert(attendance);
+                            MeetingMember attendance = new MeetingMember
+                            {
+                                MeetingID = meetingId,
+                                StaffID = staffId,
+                                IsPresent = isPresent,
+                                Remarks = remark
+                            };
+
+                            int result = MeetingMemberDAL.Insert(attendance);
+                            if (result > 0)
+                            {
+                                successCount++;
+                            }
+                        }
+                        catch (Exception innerEx)
+                        {
+                            // Log individual staff member errors but continue processing
+                            System.Diagnostics.Debug.WriteLine($"Error adding staff {selectedStaff[i]}: {innerEx.Message}");
+                        }
+                    }
+
+                    if (successCount > 0)
+                    {
+                        TempData["Success"] = $"Attendance updated successfully for {successCount} staff member(s)!";
+                    }
+                    else
+                    {
+                        TempData["Warning"] = "No staff members were added to the meeting.";
                     }
                 }
+                else
+                {
+                    TempData["Info"] = "No staff members were selected for this meeting.";
+                }
 
-                TempData["Success"] = "Attendance updated successfully!";
                 return RedirectToAction("Details", new { id = meetingId });
             }
             catch (Exception ex)

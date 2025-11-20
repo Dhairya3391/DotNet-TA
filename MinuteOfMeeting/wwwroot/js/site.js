@@ -51,11 +51,19 @@ function initializeDatePickers() {
 }
 
 function autoHideAlerts() {
+    // Auto-hide alerts after 5 seconds, but only success and info messages
     setTimeout(function() {
-        $('.alert').fadeOut(500, function() {
+        $('.alert-success, .alert-info').fadeOut(500, function() {
             $(this).remove();
         });
     }, 5000);
+
+    // Keep error and warning messages visible longer
+    setTimeout(function() {
+        $('.alert-warning').fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 10000);
 }
 
 function showLoading(button, originalText) {
