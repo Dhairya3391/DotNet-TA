@@ -330,23 +330,55 @@
     <script>
         let charts = {};
 
-        $(document).ready(function() {
-            initializeCharts();
-            loadChartData();
+        // Pre-load chart data from server (no AJAX needed on initial load)
+        const chartDataRaw = {
+            meetingsByType: @Html.Raw(ViewBag.MeetingsByTypeJson ?? "[]"),
+            meetingsByDepartment: @Html.Raw(ViewBag.MeetingsByDepartmentJson ?? "[]"),
+            monthlyTrend: @Html.Raw(ViewBag.MonthlyTrendJson ?? "[]")
+        };
 
-            // Auto-refresh every 30 seconds
-            setInterval(refreshQuickStats, 30000);
+        // Extract data for charts
+        const meetingsByTypeData = chartDataRaw.meetingsByType.map(item => ({
+            MeetingTypeName: item.MeetingTypeName || "",
+            Count: parseInt(item.Count) || 0
+        }));
+
+        const meetingsByDepartmentData = chartDataRaw.meetingsByDepartment.map(item => ({
+            DepartmentName: item.DepartmentName || "",
+            Count: parseInt(item.Count) || 0
+        }));
+
+        const monthlyTrendData = chartDataRaw.monthlyTrend.map(item => ({
+            Month: item.Month || "",
+            Count: parseInt(item.Count) || 0
+        }));
+
+        $(document).ready(function() {
+            // Wait for Chart.js to load (since it's deferred)
+            if (typeof Chart === 'undefined') {
+                setTimeout(initializeCharts, 100);
+            } else {
+                initializeCharts();
+            }
+
+            // Auto-refresh stats only (not full page) every 60 seconds instead of 30
+            setInterval(refreshQuickStats, 60000);
         });
 
         function initializeCharts() {
-            // Meetings by Type - Pie Chart
+            if (typeof Chart === 'undefined') {
+                console.log('Chart.js not loaded yet, retrying...');
+                setTimeout(initializeCharts, 100);
+                return;
+            }
+            // Meetings by Type - Pie Chart (using pre-loaded data)
             const meetingsByTypeCtx = document.getElementById('meetingsByTypeChart').getContext('2d');
             charts.meetingsByType = new Chart(meetingsByTypeCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: [],
+                    labels: meetingsByTypeData.map(x => x.MeetingTypeName),
                     datasets: [{
-                        data: [],
+                        data: meetingsByTypeData.map(x => x.Count),
                         backgroundColor: [
                             '#4e73df',
                             '#1cc88a',
@@ -369,15 +401,15 @@
                 }
             });
 
-            // Meetings by Department - Bar Chart
+            // Meetings by Department - Bar Chart (using pre-loaded data)
             const meetingsByDeptCtx = document.getElementById('meetingsByDepartmentChart').getContext('2d');
             charts.meetingsByDepartment = new Chart(meetingsByDeptCtx, {
                 type: 'bar',
                 data: {
-                    labels: [],
+                    labels: meetingsByDepartmentData.map(x => x.DepartmentName),
                     datasets: [{
                         label: 'Number of Meetings',
-                        data: [],
+                        data: meetingsByDepartmentData.map(x => x.Count),
                         backgroundColor: '#4e73df',
                         borderColor: '#4e73df',
                         borderWidth: 1
@@ -397,15 +429,15 @@
                 }
             });
 
-            // Monthly Trend - Line Chart
+            // Monthly Trend - Line Chart (using pre-loaded data)
             const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
             charts.monthlyTrend = new Chart(monthlyTrendCtx, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: monthlyTrendData.map(x => x.Month),
                     datasets: [{
                         label: 'Meetings',
-                        data: [],
+                        data: monthlyTrendData.map(x => x.Count),
                         borderColor: '#4e73df',
                         backgroundColor: 'rgba(78, 115, 223, 0.1)',
                         borderWidth: 2,
@@ -428,34 +460,7 @@
             });
         }
 
-        function loadChartData() {
-            // Load Meetings by Type
-            $.get('/Dashboard/GetChartData?chartType=meetingsbytype', function(response) {
-                if (!response.error && Array.isArray(response)) {
-                    charts.meetingsByType.data.labels = response.map(item => item.MeetingTypeName);
-                    charts.meetingsByType.data.datasets[0].data = response.map(item => item.Count);
-                    charts.meetingsByType.update();
-                }
-            });
-
-            // Load Meetings by Department
-            $.get('/Dashboard/GetChartData?chartType=meetingsbydepartment', function(response) {
-                if (!response.error && Array.isArray(response)) {
-                    charts.meetingsByDepartment.data.labels = response.map(item => item.DepartmentName);
-                    charts.meetingsByDepartment.data.datasets[0].data = response.map(item => item.Count);
-                    charts.meetingsByDepartment.update();
-                }
-            });
-
-            // Load Monthly Trend
-            $.get('/Dashboard/GetChartData?charttype=monthlytrend', function(response) {
-                if (!response.error && Array.isArray(response)) {
-                    charts.monthlyTrend.data.labels = response.map(item => item.Month);
-                    charts.monthlyTrend.data.datasets[0].data = response.map(item => item.Count);
-                    charts.monthlyTrend.update();
-                }
-            });
-        }
+        // Chart data is now loaded inline - no separate AJAX calls needed!
 
         function refreshQuickStats() {
             $.get('/Dashboard/QuickStats', function(response) {

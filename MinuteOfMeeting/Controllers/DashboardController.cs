@@ -17,37 +17,29 @@ namespace MinuteOfMeeting.Controllers
         {
             try
             {
-                DashboardViewModel model = new DashboardViewModel();
+                // OPTIMIZED: Load all dashboard data in a single database call
+                var dashboardData = DashboardDAL.GetAllDashboardData();
 
-                // Get basic statistics
-                model.TotalMeetings = DashboardDAL.GetTotalMeetings();
-                model.UpcomingMeetings = DashboardDAL.GetUpcomingMeetingsCount();
-                model.CompletedMeetings = DashboardDAL.GetCompletedMeetingsCount();
-                model.CancelledMeetings = DashboardDAL.GetCancelledMeetingsCount();
+                DashboardViewModel model = new DashboardViewModel
+                {
+                    TotalMeetings = dashboardData.TotalMeetings,
+                    UpcomingMeetings = dashboardData.UpcomingMeetings,
+                    CompletedMeetings = dashboardData.CompletedMeetings,
+                    CancelledMeetings = dashboardData.CancelledMeetings,
+                    RecentMeetings = dashboardData.RecentMeetings ?? new DataTable(),
+                    UpcomingMeetingsList = dashboardData.UpcomingMeetingsList ?? new DataTable(),
+                    TodayMeetings = dashboardData.TodayMeetings ?? new DataTable(),
+                    MeetingsByType = dashboardData.MeetingsByType ?? new DataTable(),
+                    MeetingsByDepartment = dashboardData.MeetingsByDepartment ?? new DataTable(),
+                    MonthlyMeetingTrend = dashboardData.MonthlyMeetingTrend ?? new DataTable(),
+                    MostActiveDepartments = dashboardData.MostActiveDepartments ?? new DataTable(),
+                    StaffParticipation = dashboardData.StaffParticipation ?? new DataTable()
+                };
 
-                // Get recent meetings
-                model.RecentMeetings = DashboardDAL.GetRecentMeetings(10);
-
-                // Get upcoming meetings
-                model.UpcomingMeetingsList = DashboardDAL.GetUpcomingMeetings(10);
-
-                // Get meetings by type for chart
-                model.MeetingsByType = DashboardDAL.GetMeetingsByType();
-
-                // Get meetings by department for chart
-                model.MeetingsByDepartment = DashboardDAL.GetMeetingsByDepartment();
-
-                // Get monthly meeting trend
-                model.MonthlyMeetingTrend = DashboardDAL.GetMonthlyMeetingTrend();
-
-                // Get most active departments
-                model.MostActiveDepartments = DashboardDAL.GetMostActiveDepartments(5);
-
-                // Get staff participation stats
-                model.StaffParticipation = DashboardDAL.GetStaffParticipation(5);
-
-                // Get today's meetings
-                model.TodayMeetings = DashboardDAL.GetTodayMeetings();
+                // Convert chart data to JSON for inline loading (avoids AJAX calls)
+                ViewBag.MeetingsByTypeJson = ConvertDataTableToJson(model.MeetingsByType);
+                ViewBag.MeetingsByDepartmentJson = ConvertDataTableToJson(model.MeetingsByDepartment);
+                ViewBag.MonthlyTrendJson = ConvertDataTableToJson(model.MonthlyMeetingTrend);
 
                 return View(model);
             }
@@ -56,6 +48,26 @@ namespace MinuteOfMeeting.Controllers
                 TempData["Error"] = "Error loading dashboard: " + ex.Message;
                 return View(new DashboardViewModel());
             }
+        }
+
+        // Helper method to convert DataTable to JSON
+        private string ConvertDataTableToJson(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0)
+                return "[]";
+
+            var list = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn col in dt.Columns)
+                {
+                    dict[col.ColumnName] = row[col] ?? "";
+                }
+                list.Add(dict);
+            }
+
+            return System.Text.Json.JsonSerializer.Serialize(list);
         }
 
         // GET: Dashboard/GetChartData
@@ -146,7 +158,7 @@ namespace MinuteOfMeeting.Controllers
                 DataTable activities = DashboardDAL.GetRecentActivities(20);
                 return PartialView("_RecentActivityPartial", activities);
             }
-            catch (Exception ex)
+            catch
             {
                 return PartialView("_RecentActivityPartial", new DataTable());
             }

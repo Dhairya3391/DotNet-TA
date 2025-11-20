@@ -1,11 +1,11 @@
-using OfficeOpenXml;
+using ClosedXML.Excel;
 using System.Data;
 
 namespace MinuteOfMeeting.Helpers
 {
     /// <summary>
     /// Export Helper Class
-    /// Handles Excel export functionality using EPPlus
+    /// Handles Excel export functionality using ClosedXML
     /// </summary>
     public static class ExportHelper
     {
@@ -17,20 +17,18 @@ namespace MinuteOfMeeting.Helpers
         /// <returns>Excel file as byte array</returns>
         public static byte[] ExportToExcel(DataTable dt, string sheetName)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (var package = new ExcelPackage())
+            using (var workbook = new XLWorkbook())
             {
-                var worksheet = package.Workbook.Worksheets.Add(sheetName);
+                var worksheet = workbook.Worksheets.Add(sheetName);
 
                 // Add headers
                 for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    worksheet.Cells[1, i + 1].Value = dt.Columns[i].ColumnName;
-                    worksheet.Cells[1, i + 1].Style.Font.Bold = true;
-                    worksheet.Cells[1, i + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                    worksheet.Cells[1, i + 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    var cell = worksheet.Cell(1, i + 1);
+                    cell.Value = dt.Columns[i].ColumnName;
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 }
 
                 // Add data
@@ -41,32 +39,39 @@ namespace MinuteOfMeeting.Helpers
                         object value = dt.Rows[row][col];
 
                         // Handle DBNull values
+                        var cell = worksheet.Cell(row + 2, col + 1);
                         if (value == DBNull.Value)
                         {
-                            worksheet.Cells[row + 2, col + 1].Value = "";
+                            cell.Value = "";
                         }
                         else
                         {
-                            worksheet.Cells[row + 2, col + 1].Value = value;
+                            cell.Value = value;
                         }
 
                         // Add border to data cells
-                        worksheet.Cells[row + 2, col + 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     }
                 }
 
                 // Auto-fit columns
-                worksheet.Cells.AutoFitColumns();
+                worksheet.Columns().AdjustToContents();
 
                 // Add total row count
-                worksheet.Cells[dt.Rows.Count + 3, 1].Value = $"Total Records: {dt.Rows.Count}";
-                worksheet.Cells[dt.Rows.Count + 3, 1].Style.Font.Bold = true;
+                var totalCell = worksheet.Cell(dt.Rows.Count + 3, 1);
+                totalCell.Value = $"Total Records: {dt.Rows.Count}";
+                totalCell.Style.Font.Bold = true;
 
                 // Add timestamp
-                worksheet.Cells[dt.Rows.Count + 4, 1].Value = $"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                worksheet.Cells[dt.Rows.Count + 4, 1].Style.Font.Italic = true;
+                var timestampCell = worksheet.Cell(dt.Rows.Count + 4, 1);
+                timestampCell.Value = $"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                timestampCell.Style.Font.Italic = true;
 
-                return package.GetAsByteArray();
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
             }
         }
 
@@ -93,19 +98,23 @@ namespace MinuteOfMeeting.Helpers
         /// <returns>Excel file as byte array</returns>
         public static byte[] ExportEmptyExcel(string sheetName)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (var package = new ExcelPackage())
+            using (var workbook = new XLWorkbook())
             {
-                var worksheet = package.Workbook.Worksheets.Add(sheetName);
+                var worksheet = workbook.Worksheets.Add(sheetName);
 
-                worksheet.Cells[1, 1].Value = "No data available";
-                worksheet.Cells[1, 1].Style.Font.Italic = true;
+                var cell1 = worksheet.Cell(1, 1);
+                cell1.Value = "No data available";
+                cell1.Style.Font.Italic = true;
 
-                worksheet.Cells[2, 1].Value = $"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                worksheet.Cells[2, 1].Style.Font.Italic = true;
+                var cell2 = worksheet.Cell(2, 1);
+                cell2.Value = $"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                cell2.Style.Font.Italic = true;
 
-                return package.GetAsByteArray();
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
             }
         }
 
@@ -116,24 +125,19 @@ namespace MinuteOfMeeting.Helpers
         /// <returns>Excel file as byte array</returns>
         public static byte[] ExportMeetingsToExcel(DataTable dt)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (var package = new ExcelPackage())
+            using (var workbook = new XLWorkbook())
             {
-                var worksheet = package.Workbook.Worksheets.Add("Meetings");
+                var worksheet = workbook.Worksheets.Add("Meetings");
 
-                // Style for headers
-                var headerStyle = worksheet.Cells[1, 1, 1, dt.Columns.Count].Style;
-                headerStyle.Font.Bold = true;
-                headerStyle.Font.Color.SetColor(System.Drawing.Color.White);
-                headerStyle.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                headerStyle.Fill.BackgroundColor.SetColor(System.Drawing.Color.DarkBlue);
-                headerStyle.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
-
-                // Add headers
+                // Add and style headers
                 for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    worksheet.Cells[1, i + 1].Value = GetFormattedColumnName(dt.Columns[i].ColumnName);
+                    var cell = worksheet.Cell(1, i + 1);
+                    cell.Value = GetFormattedColumnName(dt.Columns[i].ColumnName);
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Font.FontColor = XLColor.White;
+                    cell.Style.Fill.BackgroundColor = XLColor.DarkBlue;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 }
 
                 // Add data
@@ -142,47 +146,50 @@ namespace MinuteOfMeeting.Helpers
                     for (int col = 0; col < dt.Columns.Count; col++)
                     {
                         object value = dt.Rows[row][col];
+                        var cell = worksheet.Cell(row + 2, col + 1);
 
                         // Special formatting for specific columns
                         if (dt.Columns[col].ColumnName.Contains("Date"))
                         {
                             if (DateTime.TryParse(value?.ToString(), out DateTime dateValue))
                             {
-                                worksheet.Cells[row + 2, col + 1].Value = dateValue;
-                                worksheet.Cells[row + 2, col + 1].Style.Numberformat.Format = "yyyy-mm-dd hh:mm";
+                                cell.Value = dateValue;
+                                cell.Style.DateFormat.Format = "yyyy-mm-dd hh:mm";
                             }
                         }
                         else if (dt.Columns[col].ColumnName.Contains("Cancelled"))
                         {
                             bool isCancelled = Convert.ToBoolean(value);
-                            worksheet.Cells[row + 2, col + 1].Value = isCancelled ? "Yes" : "No";
+                            cell.Value = isCancelled ? "Yes" : "No";
 
                             if (isCancelled)
                             {
-                                worksheet.Cells[row + 2, col + 1].Style.Font.Color.SetColor(System.Drawing.Color.Red);
+                                cell.Style.Font.FontColor = XLColor.Red;
                             }
                         }
                         else
                         {
-                            worksheet.Cells[row + 2, col + 1].Value = value ?? "";
+                            cell.Value = value ?? "";
                         }
 
                         // Add border
-                        worksheet.Cells[row + 2, col + 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     }
                 }
 
                 // Auto-fit columns
-                worksheet.Cells.AutoFitColumns();
+                worksheet.Columns().AdjustToContents();
 
                 // Add summary section
                 int summaryRow = dt.Rows.Count + 3;
-                worksheet.Cells[summaryRow, 1].Value = "SUMMARY";
-                worksheet.Cells[summaryRow, 1].Style.Font.Bold = true;
-                worksheet.Cells[summaryRow, 1].Style.Font.Color.SetColor(System.Drawing.Color.DarkBlue);
+                var summaryHeaderCell = worksheet.Cell(summaryRow, 1);
+                summaryHeaderCell.Value = "SUMMARY";
+                summaryHeaderCell.Style.Font.Bold = true;
+                summaryHeaderCell.Style.Font.FontColor = XLColor.DarkBlue;
 
-                worksheet.Cells[summaryRow + 1, 1].Value = $"Total Meetings: {dt.Rows.Count}";
-                worksheet.Cells[summaryRow + 1, 1].Style.Font.Bold = true;
+                var totalCell = worksheet.Cell(summaryRow + 1, 1);
+                totalCell.Value = $"Total Meetings: {dt.Rows.Count}";
+                totalCell.Style.Font.Bold = true;
 
                 // Count by status if available
                 if (dt.Columns.Contains("MeetingStatus"))
@@ -194,17 +201,23 @@ namespace MinuteOfMeeting.Helpers
                     int statusRow = summaryRow + 2;
                     foreach (var status in statusCount)
                     {
-                        worksheet.Cells[statusRow, 1].Value = $"{status.Status}: {status.Count}";
+                        var statusCell = worksheet.Cell(statusRow, 1);
+                        statusCell.Value = $"{status.Status}: {status.Count}";
                         statusRow++;
                     }
                 }
 
                 // Add metadata
-                worksheet.Cells[dt.Rows.Count + 10, 1].Value = $"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                worksheet.Cells[dt.Rows.Count + 10, 1].Style.Font.Italic = true;
-                worksheet.Cells[dt.Rows.Count + 10, 1].Style.Font.Size = 10;
+                var metadataCell = worksheet.Cell(dt.Rows.Count + 10, 1);
+                metadataCell.Value = $"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                metadataCell.Style.Font.Italic = true;
+                metadataCell.Style.Font.FontSize = 10;
 
-                return package.GetAsByteArray();
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
             }
         }
 
@@ -261,19 +274,18 @@ namespace MinuteOfMeeting.Helpers
         /// <returns>Excel file as byte array</returns>
         public static byte[] ExportMultipleSheets(Dictionary<string, DataTable> tables)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (var package = new ExcelPackage())
+            using (var workbook = new XLWorkbook())
             {
                 foreach (var table in tables)
                 {
-                    var worksheet = package.Workbook.Worksheets.Add(table.Key);
+                    var worksheet = workbook.Worksheets.Add(table.Key);
 
                     // Add headers
                     for (int i = 0; i < table.Value.Columns.Count; i++)
                     {
-                        worksheet.Cells[1, i + 1].Value = table.Value.Columns[i].ColumnName;
-                        worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                        var cell = worksheet.Cell(1, i + 1);
+                        cell.Value = table.Value.Columns[i].ColumnName;
+                        cell.Style.Font.Bold = true;
                     }
 
                     // Add data
@@ -281,14 +293,19 @@ namespace MinuteOfMeeting.Helpers
                     {
                         for (int col = 0; col < table.Value.Columns.Count; col++)
                         {
-                            worksheet.Cells[row + 2, col + 1].Value = table.Value.Rows[row][col] ?? "";
+                            var cell = worksheet.Cell(row + 2, col + 1);
+                            cell.Value = table.Value.Rows[row][col] ?? "";
                         }
                     }
 
-                    worksheet.Cells.AutoFitColumns();
+                    worksheet.Columns().AdjustToContents();
                 }
 
-                return package.GetAsByteArray();
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
             }
         }
 

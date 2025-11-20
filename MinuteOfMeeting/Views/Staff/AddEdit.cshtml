@@ -1,0 +1,246 @@
+@model MinuteOfMeeting.Models.Staff
+@using System.Data
+@{
+    ViewData["Title"] = (Model.StaffID == 0 ? "Add" : "Edit") + " Staff Member";
+    ViewData["PageTitle"] = (Model.StaffID == 0 ? "Add New" : "Edit") + " Staff Member";
+    ViewData["PageDescription"] = (Model.StaffID == 0 ? "Register a new staff member" : "Update existing staff member information");
+
+    DataTable departments = ViewBag.Departments as DataTable ?? new DataTable();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-plus me-2"></i>
+                    @(Model.StaffID == 0 ? "Add New Staff Member" : "Edit Staff Member")
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Save" method="post" id="staffForm">
+                    @Html.AntiForgeryToken()
+
+                    @if (Model.StaffID != 0)
+                    {
+                        <input type="hidden" asp-for="StaffID" />
+                        <input type="hidden" asp-for="Created" />
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="StaffName" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input asp-for="StaffName" class="form-control"
+                                           placeholder="Enter staff name" id="staffNameInput"
+                                           autocomplete="off" />
+                                </div>
+                                <span asp-validation-for="StaffName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="DepartmentID" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-building"></i>
+                                    </span>
+                                    <select asp-for="DepartmentID" class="form-select" id="departmentSelect">
+                                        <option value="">-- Select Department --</option>
+                                        @if (departments.Rows.Count > 0)
+                                        {
+                                            @foreach (DataRow row in departments.Rows)
+                                            {
+                                                <option value="@row["DepartmentID"]">@row["DepartmentName"]</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <span asp-validation-for="DepartmentID" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="EmailAddress" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input asp-for="EmailAddress" class="form-control" type="email"
+                                           placeholder="Enter email address" id="emailInput"
+                                           autocomplete="off" />
+                                </div>
+                                <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                                <div id="emailAvailability" class="mt-1 small"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="MobileNo" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-phone"></i>
+                                    </span>
+                                    <input asp-for="MobileNo" class="form-control"
+                                           placeholder="Enter mobile number" id="mobileInput"
+                                           autocomplete="off" />
+                                </div>
+                                <span asp-validation-for="MobileNo" class="text-danger"></span>
+                                <small class="text-muted">Example: +91 98765 43210</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Remarks" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-chat-text"></i>
+                            </span>
+                            <textarea asp-for="Remarks" class="form-control" rows="3"
+                                      placeholder="Enter any additional remarks (optional)"></textarea>
+                        </div>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Staff Member Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Email address must be unique for each staff member</li>
+                            <li>Use official email addresses for better communication</li>
+                            <li>Mobile number should include country code if international</li>
+                            <li>Remarks field can include position, responsibilities, or special notes</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @(Model.StaffID == 0 ? "Create Staff Member" : "Update Staff Member")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Information (shown for edit mode) -->
+@if (Model.StaffID != 0)
+{
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Audit Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Created Date:</small><br>
+                            <strong>@Model.Created.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Last Modified:</small><br>
+                            <strong>@Model.Modified.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This staff member may be assigned to existing meetings or have a user account.
+                        Changes to email address will require validation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            // Real-time email availability check
+            var checkTimeout;
+            $('#emailInput').on('input', function() {
+                var emailAddress = $(this).val().trim();
+                var excludeId = @(Model.StaffID);
+
+                // Clear previous timeout
+                clearTimeout(checkTimeout);
+
+                // Only check if we have a valid email format
+                var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                if (emailRegex.test(emailAddress)) {
+                    // Set a small delay to avoid too many requests
+                    checkTimeout = setTimeout(function() {
+                        checkEmailAvailability(emailAddress, excludeId);
+                    }, 300);
+                } else {
+                    $('#emailAvailability').empty();
+                }
+            });
+
+            // Form submission with loading state
+            $('#staffForm').on('submit', function() {
+                var submitBtn = $('#submitButton');
+                submitBtn.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+                // Re-enable button after 5 seconds in case of error
+                setTimeout(function() {
+                    submitBtn.prop('disabled', false)
+                        .html('@(Model.StaffID == 0 ? "Create Staff Member" : "Update Staff Member")');
+                }, 5000);
+            });
+
+            // Focus on staff name field
+            $('#staffNameInput').focus();
+        });
+
+        function checkEmailAvailability(emailAddress, excludeId) {
+            $.post('/Staff/CheckEmail', {
+                emailAddress: emailAddress,
+                excludeId: excludeId || null
+            }, function(response) {
+                var feedback = $('#emailAvailability');
+
+                if (response.error) {
+                    feedback.removeClass('text-success text-danger')
+                        .addClass('text-warning')
+                        .text('Error checking availability. Please try again.');
+                    return;
+                }
+
+                if (response.available) {
+                    feedback.removeClass('text-danger text-warning')
+                        .addClass('text-success')
+                        .html('<i class="bi bi-check-circle me-1"></i>Email address is available!');
+                } else {
+                    feedback.removeClass('text-success text-warning')
+                        .addClass('text-danger')
+                        .html('<i class="bi bi-x-circle me-1"></i>Email address already exists!');
+                }
+            });
+        }
+    </script>
+}

@@ -77,8 +77,8 @@ namespace MinuteOfMeeting.Models.ViewModels
         public List<MeetingMember> MeetingHistory { get; set; } = new List<MeetingMember>();
 
         // Filter options
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateTime? StartDate { get; set; } = DateTime.Now.AddMonths(-3);
+        public DateTime? EndDate { get; set; } = DateTime.Now;
     }
 
     /// <summary>
@@ -115,11 +115,11 @@ namespace MinuteOfMeeting.Models.ViewModels
     {
         [Display(Name = "Start Date")]
         [DataType(DataType.Date)]
-        public DateTime? StartDate { get; set; }
+        public DateTime? StartDate { get; set; } = DateTime.Now.AddMonths(-3);
 
         [Display(Name = "End Date")]
         [DataType(DataType.Date)]
-        public DateTime? EndDate { get; set; }
+        public DateTime? EndDate { get; set; } = DateTime.Now;
 
         [Display(Name = "Department")]
         public int? DepartmentID { get; set; }

@@ -15,7 +15,7 @@ namespace MinuteOfMeeting.Models.ViewModels
         [Required(ErrorMessage = "Meeting date and time is required")]
         [Display(Name = "Meeting Date & Time")]
         [DataType(DataType.DateTime)]
-        public DateTime MeetingDate { get; set; }
+        public DateTime MeetingDate { get; set; } = DateTime.Now;
 
         [Required(ErrorMessage = "Venue is required")]
         [Display(Name = "Venue")]
@@ -56,11 +56,11 @@ namespace MinuteOfMeeting.Models.ViewModels
     {
         [Display(Name = "Start Date")]
         [DataType(DataType.Date)]
-        public DateTime? StartDate { get; set; }
+        public DateTime? StartDate { get; set; } = DateTime.Now.AddMonths(-1);
 
         [Display(Name = "End Date")]
         [DataType(DataType.Date)]
-        public DateTime? EndDate { get; set; }
+        public DateTime? EndDate { get; set; } = DateTime.Now.AddMonths(1);
 
         [Display(Name = "Meeting Type")]
         public int? MeetingTypeID { get; set; }

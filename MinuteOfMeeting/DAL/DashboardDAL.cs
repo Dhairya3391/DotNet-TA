@@ -9,6 +9,92 @@ namespace MinuteOfMeeting.DAL
     /// </summary>
     public class DashboardDAL
     {
+        // OPTIMIZED: Load all dashboard data in a single database call
+        public static DashboardDataSet GetAllDashboardData()
+        {
+            DashboardDataSet data = new DashboardDataSet();
+
+            using (SqlConnection conn = DBHelper.GetConnection())
+            {
+                // Use a single stored procedure that returns multiple result sets
+                SqlCommand cmd = new SqlCommand("PR_Dashboard_GetAllData", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 30;
+
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    // Result set 1: Basic statistics (single row)
+                    if (reader.Read())
+                    {
+                        data.TotalMeetings = reader["TotalMeetings"] != DBNull.Value ? Convert.ToInt32(reader["TotalMeetings"]) : 0;
+                        data.UpcomingMeetings = reader["UpcomingMeetings"] != DBNull.Value ? Convert.ToInt32(reader["UpcomingMeetings"]) : 0;
+                        data.CompletedMeetings = reader["CompletedMeetings"] != DBNull.Value ? Convert.ToInt32(reader["CompletedMeetings"]) : 0;
+                        data.CancelledMeetings = reader["CancelledMeetings"] != DBNull.Value ? Convert.ToInt32(reader["CancelledMeetings"]) : 0;
+                    }
+
+                    // Result set 2: Recent meetings
+                    if (reader.NextResult())
+                    {
+                        data.RecentMeetings = new DataTable();
+                        data.RecentMeetings.Load(reader);
+                    }
+
+                    // Result set 3: Upcoming meetings
+                    if (reader.NextResult())
+                    {
+                        data.UpcomingMeetingsList = new DataTable();
+                        data.UpcomingMeetingsList.Load(reader);
+                    }
+
+                    // Result set 4: Today's meetings
+                    if (reader.NextResult())
+                    {
+                        data.TodayMeetings = new DataTable();
+                        data.TodayMeetings.Load(reader);
+                    }
+
+                    // Result set 5: Meetings by type (for chart)
+                    if (reader.NextResult())
+                    {
+                        data.MeetingsByType = new DataTable();
+                        data.MeetingsByType.Load(reader);
+                    }
+
+                    // Result set 6: Meetings by department (for chart)
+                    if (reader.NextResult())
+                    {
+                        data.MeetingsByDepartment = new DataTable();
+                        data.MeetingsByDepartment.Load(reader);
+                    }
+
+                    // Result set 7: Monthly trend
+                    if (reader.NextResult())
+                    {
+                        data.MonthlyMeetingTrend = new DataTable();
+                        data.MonthlyMeetingTrend.Load(reader);
+                    }
+
+                    // Result set 8: Most active departments
+                    if (reader.NextResult())
+                    {
+                        data.MostActiveDepartments = new DataTable();
+                        data.MostActiveDepartments.Load(reader);
+                    }
+
+                    // Result set 9: Staff participation
+                    if (reader.NextResult())
+                    {
+                        data.StaffParticipation = new DataTable();
+                        data.StaffParticipation.Load(reader);
+                    }
+                }
+            }
+
+            return data;
+        }
+
         // Basic Statistics
         public static int GetTotalMeetings()
         {
@@ -582,5 +668,27 @@ namespace MinuteOfMeeting.DAL
                 return dt;
             }
         }
+    }
+
+    /// <summary>
+    /// Container class for all dashboard data - loaded in a single database call
+    /// </summary>
+    public class DashboardDataSet
+    {
+        // Statistics
+        public int TotalMeetings { get; set; }
+        public int UpcomingMeetings { get; set; }
+        public int CompletedMeetings { get; set; }
+        public int CancelledMeetings { get; set; }
+
+        // Data tables
+        public DataTable? RecentMeetings { get; set; }
+        public DataTable? UpcomingMeetingsList { get; set; }
+        public DataTable? TodayMeetings { get; set; }
+        public DataTable? MeetingsByType { get; set; }
+        public DataTable? MeetingsByDepartment { get; set; }
+        public DataTable? MonthlyMeetingTrend { get; set; }
+        public DataTable? MostActiveDepartments { get; set; }
+        public DataTable? StaffParticipation { get; set; }
     }
 }

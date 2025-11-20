@@ -38,12 +38,12 @@ namespace MinuteOfMeeting.Models
         [Display(Name = "Created Date")]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = DateTime.Now;
 
         [Display(Name = "Modified Date")]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
-        public DateTime Modified { get; set; }
+        public DateTime Modified { get; set; } = DateTime.Now;
 
         // Navigation properties (not stored in database, used for display)
         public string DepartmentName { get; set; }

@@ -1,0 +1,172 @@
+@model MinuteOfMeeting.Models.MeetingVenue
+@{
+    ViewData["Title"] = (Model.MeetingVenueID == 0 ? "Add" : "Edit") + " Meeting Venue";
+    ViewData["PageTitle"] = (Model.MeetingVenueID == 0 ? "Add New" : "Edit") + " Meeting Venue";
+    ViewData["PageDescription"] = (Model.MeetingVenueID == 0 ? "Create a new meeting venue" : "Update existing meeting venue");
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    @(Model.MeetingVenueID == 0 ? "Add New Meeting Venue" : "Edit Meeting Venue")
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Save" method="post" id="meetingVenueForm">
+                    @Html.AntiForgeryToken()
+
+                    @if (Model.MeetingVenueID != 0)
+                    {
+                        <input type="hidden" asp-for="MeetingVenueID" />
+                        <input type="hidden" asp-for="Created" />
+                    }
+
+                    <div class="form-group mb-3">
+                        <label asp-for="MeetingVenueName" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-geo-alt"></i>
+                            </span>
+                            <input asp-for="MeetingVenueName" class="form-control"
+                                   placeholder="Enter meeting venue name" id="venueNameInput"
+                                   autocomplete="off" />
+                        </div>
+                        <span asp-validation-for="MeetingVenueName" class="text-danger"></span>
+                        <div id="nameAvailability" class="mt-1 small"></div>
+                        <small class="text-muted">e.g., Conference Room A, Board Room, Virtual (Zoom), Auditorium</small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Venue Naming Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Use clear, descriptive names for physical locations</li>
+                            <li>Include platform name for virtual venues (e.g., "Virtual - Zoom Link")</li>
+                            <li>Be consistent with naming conventions</li>
+                            <li>Examples: "Conference Room 201", "Executive Board Room", "Training Hall - 3rd Floor"</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @(Model.MeetingVenueID == 0 ? "Create Venue" : "Update Venue")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Information (shown for edit mode) -->
+@if (Model.MeetingVenueID != 0)
+{
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Important Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Created Date:</small><br>
+                            <strong>@Model.Created.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Last Modified:</small><br>
+                            <strong>@Model.Modified.ToString("yyyy-MM-dd HH:mm")</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This venue may be referenced by existing meetings.
+                        Changes will apply to all future meetings but won't affect historical data.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            // Real-time name availability check
+            var checkTimeout;
+            $('#venueNameInput').on('input', function() {
+                var venueName = $(this).val().trim();
+                var excludeId = @(Model.MeetingVenueID);
+
+                // Clear previous timeout
+                clearTimeout(checkTimeout);
+
+                // Only check if we have at least 2 characters
+                if (venueName.length >= 2) {
+                    // Set a small delay to avoid too many requests
+                    checkTimeout = setTimeout(function() {
+                        checkNameAvailability(venueName, excludeId);
+                    }, 300);
+                } else {
+                    $('#nameAvailability').empty();
+                }
+            });
+
+            // Form submission with loading state
+            $('#meetingVenueForm').on('submit', function() {
+                var submitBtn = $('#submitButton');
+                submitBtn.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+                // Re-enable button after 5 seconds in case of error
+                setTimeout(function() {
+                    submitBtn.prop('disabled', false)
+                        .html('@(Model.MeetingVenueID == 0 ? "Create Venue" : "Update Venue")');
+                }, 5000);
+            });
+
+            // Focus on venue name field
+            $('#venueNameInput').focus();
+        });
+
+        function checkNameAvailability(venueName, excludeId) {
+            $.post('/MeetingVenue/CheckVenueName', {
+                venueName: venueName,
+                excludeId: excludeId || null
+            }, function(response) {
+                var feedback = $('#nameAvailability');
+
+                if (response.error) {
+                    feedback.removeClass('text-success text-danger')
+                        .addClass('text-warning')
+                        .text('Error checking availability. Please try again.');
+                    return;
+                }
+
+                if (response.available) {
+                    feedback.removeClass('text-danger text-warning')
+                        .addClass('text-success')
+                        .html('<i class="bi bi-check-circle me-1"></i>Venue name is available!');
+                } else {
+                    feedback.removeClass('text-success text-warning')
+                        .addClass('text-danger')
+                        .html('<i class="bi bi-x-circle me-1"></i>Venue name already exists!');
+                }
+            });
+        }
+    </script>
+}
