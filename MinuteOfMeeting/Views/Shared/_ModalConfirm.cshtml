@@ -1,0 +1,126 @@
+@*
+    Modal Confirmation Components for Bulma-based UI
+    This partial contains reusable modal dialogs for confirmations
+*@
+
+@* Delete Confirmation Modal *@
+<div class="modal" id="delete-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                <span class="icon has-text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                Confirm Delete
+            </p>
+            <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="content">
+                <p>Are you sure you want to delete this record?</p>
+                <p class="has-text-danger">This action cannot be undone.</p>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <form id="delete-form" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="delete-id" name="id" value="" />
+                <button type="submit" class="button is-danger">
+                    <span class="icon">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span>Delete</span>
+                </button>
+                <button type="button" class="button" data-bulma-modal="close">
+                    <span class="icon">
+                        <i class="fas fa-times"></i>
+                    </span>
+                    <span>Cancel</span>
+                </button>
+            </form>
+        </footer>
+    </div>
+</div>
+
+@* Success Modal *@
+<div class="modal" id="success-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box has-text-centered">
+            <div class="block">
+                <span class="icon is-large has-text-success">
+                    <i class="fas fa-check-circle fa-3x"></i>
+                </span>
+            </div>
+            <div class="block">
+                <h4 class="title is-4">Success!</h4>
+                <p id="success-message" class="subtitle is-6">Operation completed successfully.</p>
+            </div>
+            <div class="block">
+                <button class="button is-success" data-bulma-modal="close">OK</button>
+            </div>
+        </div>
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+</div>
+
+@* Error Modal *@
+<div class="modal" id="error-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box has-text-centered">
+            <div class="block">
+                <span class="icon is-large has-text-danger">
+                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                </span>
+            </div>
+            <div class="block">
+                <h4 class="title is-4">Error!</h4>
+                <p id="error-message" class="subtitle is-6">An error occurred while processing your request.</p>
+            </div>
+            <div class="block">
+                <button class="button is-danger" data-bulma-modal="close">OK</button>
+            </div>
+        </div>
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+</div>
+
+@* Generic Info Modal *@
+<div class="modal" id="info-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box has-text-centered">
+            <div class="block">
+                <span class="icon is-large has-text-info">
+                    <i class="fas fa-info-circle fa-3x"></i>
+                </span>
+            </div>
+            <div class="block">
+                <h4 class="title is-4">Information</h4>
+                <p id="info-message" class="subtitle is-6">Additional information.</p>
+            </div>
+            <div class="block">
+                <button class="button is-info" data-bulma-modal="close">OK</button>
+            </div>
+        </div>
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+</div>
+
+@* Loading Modal *@
+<div class="modal" id="loading-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box has-text-centered">
+            <div class="block">
+                <div class="loader"></div>
+            </div>
+            <div class="block">
+                <h4 class="title is-5">Processing...</h4>
+                <p class="subtitle is-6">Please wait while we process your request.</p>
+            </div>
+        </div>
+    </div>
+</div>

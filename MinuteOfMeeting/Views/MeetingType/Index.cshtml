@@ -6,40 +6,62 @@
     ViewData["PageDescription"] = "Manage different types of meetings in the organization";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="mb-1">Meeting Types Management</h4>
-        <p class="text-muted mb-0">Configure and organize meeting categories</p>
+<!-- Page Actions -->
+<div class="level mb-4">
+    <div class="level-left">
+        <div>
+            <h4 class="title is-4">Meeting Types Management</h4>
+            <p class="subtitle is-6 has-text-grey">Configure and organize meeting categories</p>
+        </div>
     </div>
-    <div>
-        <a asp-action="AddEdit" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-2"></i>Add New Type
-        </a>
-        <button type="button" class="btn btn-success" onclick="exportToExcel()">
-            <i class="bi bi-file-earmark-excel me-2"></i>Export
-        </button>
+    <div class="level-right">
+        <div class="buttons">
+            <a asp-action="AddEdit" class="button is-primary">
+                <span class="icon">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span>Add New Type</span>
+            </a>
+            <button type="button" class="button is-success" onclick="exportToExcel()">
+                <span class="icon">
+                    <i class="fas fa-file-excel"></i>
+                </span>
+                <span>Export</span>
+            </button>
+        </div>
     </div>
 </div>
 
 <!-- Search and Filter Bar -->
 <div class="card mb-4">
-    <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-8">
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" name="searchText" class="form-control"
+    <div class="card-content">
+        <form method="get">
+            <div class="field has-addons">
+                <div class="control is-expanded">
+                    <input type="text" name="searchText" class="input"
                            placeholder="Search meeting types..." value="@ViewData["SearchText"]" />
-                    <button type="submit" class="btn btn-outline-primary">Search</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                </div>
+                <div class="control">
+                    <button type="submit" class="button is-info">
+                        <span class="icon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <span>Search</span>
+                    </button>
+                </div>
+                <div class="control">
+                    <a asp-action="Index" class="button is-light">
+                        <span class="icon">
+                            <i class="fas fa-times"></i>
+                        </span>
+                        <span>Clear</span>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4 text-end">
-                <span class="text-muted">
-                    Total Records: @(Model?.Rows.Count ?? 0)
-                </span>
+            <div class="field">
+                <p class="has-text-grey">
+                    Total Records: <strong>@(Model?.Rows.Count ?? 0)</strong>
+                </p>
             </div>
         </form>
     </div>
@@ -47,31 +69,33 @@
 
 <!-- Meeting Types Table -->
 <div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">
-            <i class="bi bi-tags me-2"></i>
+    <header class="card-header">
+        <p class="card-header-title">
+            <span class="icon">
+                <i class="fas fa-tags"></i>
+            </span>
             Meeting Types List
-        </h5>
-    </div>
-    <div class="card-body">
+        </p>
+    </header>
+    <div class="card-content">
         @if (Model != null && Model.Rows.Count > 0)
         {
             <form method="post" asp-action="BulkDelete" id="bulkDeleteForm">
                 @Html.AntiForgeryToken()
 
-                <div class="table-responsive">
-                    <table class="table table-hover" id="meetingTypesTable">
+                <div class="table-container">
+                    <table class="table is-fullwidth is-hoverable is-striped" id="meetingTypesTable">
                         <thead>
                             <tr>
-                                <th width="50">
-                                    <input type="checkbox" id="selectAll" class="form-check-input" />
+                                <th style="width: 50px;">
+                                    <input type="checkbox" id="selectAll" />
                                 </th>
-                                <th width="80">#</th>
+                                <th style="width: 80px;">#</th>
                                 <th>Meeting Type Name</th>
                                 <th>Remarks</th>
-                                <th width="150">Created Date</th>
-                                <th width="150">Modified Date</th>
-                                <th width="120" class="text-center">Actions</th>
+                                <th style="width: 150px;">Created Date</th>
+                                <th style="width: 150px;">Modified Date</th>
+                                <th style="width: 120px;" class="has-text-centered">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,7 +104,7 @@
                                 <tr>
                                     <td>
                                         <input type="checkbox" name="selectedIds" value="@row["MeetingTypeID"]"
-                                               class="form-check-input row-checkbox" />
+                                               class="row-checkbox" />
                                     </td>
                                     <td>@row["MeetingTypeID"]</td>
                                     <td>
@@ -93,32 +117,39 @@
                                         }
                                         else
                                         {
-                                            <span class="text-muted">No remarks</span>
+                                            <span class="has-text-grey">No remarks</span>
                                         }
                                     </td>
                                     <td>
-                                        <small class="text-muted">
+                                        <small class="has-text-grey">
                                             @Convert.ToDateTime(row["Created"]).ToString("yyyy-MM-dd")
                                         </small>
                                     </td>
                                     <td>
-                                        <small class="text-muted">
+                                        <small class="has-text-grey">
                                             @Convert.ToDateTime(row["Modified"]).ToString("yyyy-MM-dd HH:mm")
                                         </small>
                                     </td>
-                                    <td class="text-center">
-                                        <div class="btn-group" role="group">
+                                    <td class="has-text-centered">
+                                        <div class="buttons are-small is-justify-content-center">
                                             <a asp-action="Details" asp-route-id="@row["MeetingTypeID"]"
-                                               class="btn btn-sm btn-outline-primary" title="View Details">
-                                                <i class="bi bi-eye"></i>
+                                               class="button is-info is-outlined" title="View Details">
+                                                <span class="icon">
+                                                    <i class="fas fa-eye"></i>
+                                                </span>
                                             </a>
                                             <a asp-action="AddEdit" asp-route-id="@row["MeetingTypeID"]"
-                                               class="btn btn-sm btn-outline-warning" title="Edit">
-                                                <i class="bi bi-pencil"></i>
+                                               class="button is-warning is-outlined" title="Edit">
+                                                <span class="icon">
+                                                    <i class="fas fa-edit"></i>
+                                                </span>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                    onclick="confirmDelete(@row["MeetingTypeID"], '@row["MeetingTypeName"]')" title="Delete">
-                                                <i class="bi bi-trash"></i>
+                                            <button type="button" class="button is-danger is-outlined js-modal-trigger"
+                                                    data-target="delete-modal" data-id="@row["MeetingTypeID"]"
+                                                    data-name="@row["MeetingTypeName"]" title="Delete">
+                                                <span class="icon">
+                                                    <i class="fas fa-trash"></i>
+                                                </span>
                                             </button>
                                         </div>
                                     </td>
@@ -129,21 +160,33 @@
                 </div>
 
                 <!-- Bulk Actions -->
-                <div class="mt-3" id="bulkActions" style="display: none;">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <span class="text-muted">
-                                <span id="selectedCount">0</span> item(s) selected
-                            </span>
+                <div class="field mt-4" id="bulkActions" style="display: none;">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <span class="tag is-info">
+                                    <span id="selectedCount">0</span> item(s) selected
+                                </span>
+                            </div>
                         </div>
-                        <div class="col-md-6 text-end">
-                            <button type="button" class="btn btn-outline-secondary me-2" onclick="clearSelection()">
-                                Clear Selection
-                            </button>
-                            <button type="submit" class="btn btn-danger"
-                                    onclick="return confirmBulkDelete()">
-                                <i class="bi bi-trash me-2"></i>Delete Selected
-                            </button>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button type="button" class="button is-light" onclick="clearSelection()">
+                                    <span class="icon">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                    <span>Clear Selection</span>
+                                </button>
+                            </div>
+                            <div class="level-item">
+                                <button type="submit" class="button is-danger"
+                                        onclick="return confirmBulkDelete()">
+                                    <span class="icon">
+                                        <i class="fas fa-trash"></i>
+                                    </span>
+                                    <span>Delete Selected</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -151,110 +194,131 @@
         }
         else
         {
-            <div class="text-center py-5">
-                <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
-                <h5 class="text-muted mt-3">No Meeting Types Found</h5>
-                <p class="text-muted">Get started by adding your first meeting type.</p>
-                <a asp-action="AddEdit" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Add First Meeting Type
+            <div class="has-text-centered py-6">
+                <span class="icon has-text-grey" style="font-size: 3rem;">
+                    <i class="fas fa-tags"></i>
+                </span>
+                <h5 class="title is-5 has-text-grey mt-3">No Meeting Types Found</h5>
+                <p class="has-text-grey">Get started by adding your first meeting type.</p>
+                <a asp-action="AddEdit" class="button is-primary mt-3">
+                    <span class="icon">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>Add First Meeting Type</span>
                 </a>
             </div>
         }
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete the meeting type: <strong id="deleteItemName"></strong>?</p>
-                <p class="text-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    This action cannot be undone. Make sure this meeting type is not being used by any meetings.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="post" asp-action="Delete" style="display: inline;">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" id="deleteItemId" />
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Select all checkbox functionality
-            $('#selectAll').change(function() {
-                $('.row-checkbox').prop('checked', $(this).prop('checked'));
-                updateBulkActions();
-            });
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
 
-            // Individual checkbox functionality
-            $('.row-checkbox').change(function() {
+            selectAllCheckbox.addEventListener('change', function() {
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
                 updateBulkActions();
                 updateSelectAll();
             });
 
+            // Individual checkbox functionality
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateBulkActions();
+                    updateSelectAll();
+                });
+            });
+
             // Initialize bulk actions visibility
             updateBulkActions();
+
+            // Modal trigger setup
+            const modalTriggers = document.querySelectorAll('.js-modal-trigger');
+            modalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+                    setupDeleteModal(id, name);
+                });
+            });
         });
 
         function updateBulkActions() {
-            var selectedCount = $('.row-checkbox:checked').length;
-            $('#selectedCount').text(selectedCount);
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const selectedCountSpan = document.getElementById('selectedCount');
+            const bulkActions = document.getElementById('bulkActions');
+
+            selectedCountSpan.textContent = selectedCount;
 
             if (selectedCount > 0) {
-                $('#bulkActions').show();
+                bulkActions.style.display = 'block';
             } else {
-                $('#bulkActions').hide();
+                bulkActions.style.display = 'none';
             }
         }
 
         function updateSelectAll() {
-            var totalCheckboxes = $('.row-checkbox').length;
-            var checkedCheckboxes = $('.row-checkbox:checked').length;
+            const totalCheckboxes = document.querySelectorAll('.row-checkbox').length;
+            const checkedCheckboxes = document.querySelectorAll('.row-checkbox:checked').length;
+            const selectAllCheckbox = document.getElementById('selectAll');
 
             if (checkedCheckboxes === 0) {
-                $('#selectAll').prop('indeterminate', false).prop('checked', false);
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
             } else if (checkedCheckboxes === totalCheckboxes) {
-                $('#selectAll').prop('indeterminate', false).prop('checked', true);
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
             } else {
-                $('#selectAll').prop('indeterminate', true);
+                selectAllCheckbox.indeterminate = true;
+                selectAllCheckbox.checked = false;
             }
         }
 
         function clearSelection() {
-            $('#selectAll').prop('checked', false);
-            $('.row-checkbox').prop('checked', false);
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
             updateBulkActions();
         }
 
-        function confirmDelete(id, name) {
-            $('#deleteItemId').val(id);
-            $('#deleteItemName').text(name);
-            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            modal.show();
+        function setupDeleteModal(id, name) {
+            const deleteIdInput = document.getElementById('delete-id');
+            const deleteForm = document.getElementById('delete-form');
+
+            deleteIdInput.value = id;
+
+            // Set the form action based on the current controller
+            const currentPath = window.location.pathname;
+            const controller = currentPath.split('/')[1] || 'MeetingType';
+            deleteForm.action = `/${controller}/Delete/${id}`;
         }
 
         function confirmBulkDelete() {
-            var selectedCount = $('.row-checkbox:checked').length;
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
             if (selectedCount === 0) {
-                alert('Please select at least one item to delete.');
+                window.UIManager.showNotification('Please select at least one item to delete.', 'warning');
                 return false;
             }
 
-            return confirm('Are you sure you want to delete ' + selectedCount + ' selected meeting type(s)?\n\n' +
+            const confirmed = confirm(`Are you sure you want to delete ${selectedCount} selected meeting type(s)?\n\n` +
                           'Warning: This action cannot be undone. Make sure these meeting types are not being used by any meetings.');
+
+            if (confirmed) {
+                window.UIManager.showLoading();
+                return true;
+            }
+            return false;
         }
 
         function exportToExcel() {
@@ -262,10 +326,13 @@
         }
 
         // Search functionality
-        $('#searchText').on('keypress', function(e) {
-            if (e.which === 13) {
-                $(this).closest('form').submit();
-            }
-        });
+        const searchInput = document.querySelector('input[name="searchText"]');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.closest('form').submit();
+                }
+            });
+        }
     </script>
 }

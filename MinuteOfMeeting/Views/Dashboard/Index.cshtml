@@ -5,97 +5,113 @@
     ViewData["PageDescription"] = "Meeting management overview and analytics";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="mb-1">Meeting Dashboard</h4>
-        <p class="text-muted mb-0">Welcome back! Here's what's happening with your meetings.</p>
+<!-- Dashboard Actions -->
+<div class="level mb-4">
+    <div class="level-left">
+        <div>
+            <h4 class="title is-4">Meeting Dashboard</h4>
+            <p class="subtitle is-6 has-text-grey">Welcome back! Here's what's happening with your meetings.</p>
+        </div>
     </div>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
-            <i class="bi bi-arrow-clockwise me-2"></i>Refresh
-        </button>
-        <button type="button" class="btn btn-outline-success" onclick="exportDashboard()">
-            <i class="bi bi-download me-2"></i>Export Report
-        </button>
+    <div class="level-right">
+        <div class="buttons">
+            <button class="button is-info" onclick="refreshDashboard()">
+                <span class="icon">
+                    <i class="fas fa-sync-alt"></i>
+                </span>
+                <span>Refresh</span>
+            </button>
+            <button class="button is-success" onclick="exportDashboard()">
+                <span class="icon">
+                    <i class="fas fa-download"></i>
+                </span>
+                <span>Export Report</span>
+            </button>
+        </div>
     </div>
 </div>
 
 <!-- Quick Stats Cards -->
-<div class="row mb-4">
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total Meetings
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalMeetingsStat">
-                            @Model.TotalMeetings
-                        </div>
+<div class="columns mb-6">
+    <div class="column is-3-desktop is-6-tablet is-12-mobile">
+        <div class="card">
+            <div class="card-content">
+                <div class="media">
+                    <div class="media-left">
+                        <figure class="image is-48x48">
+                            <div class="tag is-primary is-large">
+                                <span class="icon">
+                                    <i class="fas fa-calendar-event"></i>
+                                </span>
+                            </div>
+                        </figure>
                     </div>
-                    <div class="col-auto">
-                        <i class="bi bi-calendar-event fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Upcoming
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="upcomingMeetingsStat">
-                            @Model.UpcomingMeetings
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-calendar-plus fa-2x text-gray-300"></i>
+                    <div class="media-content">
+                        <p class="title is-4">@Model.TotalMeetings</p>
+                        <p class="subtitle is-6">Total Meetings</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                            Completed
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="completedMeetingsStat">
-                            @Model.CompletedMeetings
-                        </div>
+    <div class="column is-3-desktop is-6-tablet is-12-mobile">
+        <div class="card">
+            <div class="card-content">
+                <div class="media">
+                    <div class="media-left">
+                        <figure class="image is-48x48">
+                            <div class="tag is-success is-large">
+                                <span class="icon">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </span>
+                            </div>
+                        </figure>
                     </div>
-                    <div class="col-auto">
-                        <i class="bi bi-check-circle fa-2x text-gray-300"></i>
+                    <div class="media-content">
+                        <p class="title is-4">@Model.UpcomingMeetings</p>
+                        <p class="subtitle is-6">Upcoming</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Cancelled
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="cancelledMeetingsStat">
-                            @Model.CancelledMeetings
-                        </div>
+    <div class="column is-3-desktop is-6-tablet is-12-mobile">
+        <div class="card">
+            <div class="card-content">
+                <div class="media">
+                    <div class="media-left">
+                        <figure class="image is-48x48">
+                            <div class="tag is-info is-large">
+                                <span class="icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>
+                            </div>
+                        </figure>
                     </div>
-                    <div class="col-auto">
-                        <i class="bi bi-x-circle fa-2x text-gray-300"></i>
+                    <div class="media-content">
+                        <p class="title is-4">@Model.CompletedMeetings</p>
+                        <p class="subtitle is-6">Completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-3-desktop is-6-tablet is-12-mobile">
+        <div class="card">
+            <div class="card-content">
+                <div class="media">
+                    <div class="media-left">
+                        <figure class="image is-48x48">
+                            <div class="tag is-warning is-large">
+                                <span class="icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </span>
+                            </div>
+                        </figure>
+                    </div>
+                    <div class="media-content">
+                        <p class="title is-4">@Model.CancelledMeetings</p>
+                        <p class="subtitle is-6">Cancelled</p>
                     </div>
                 </div>
             </div>
@@ -103,25 +119,21 @@
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="row mb-4">
+<!-- Charts Section -->
+<div class="columns mb-6">
     <!-- Meetings by Type Chart -->
-    <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Meetings by Type</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
-                        <i class="bi bi-three-dots-vertical fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                        <a class="dropdown-item" href="#" onclick="refreshChart('meetingsByType')">Refresh</a>
-                        <a class="dropdown-item" href="#" onclick="downloadChart('meetingsByTypeChart')">Download</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-area">
+    <div class="column is-6">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <span class="icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </span>
+                    Meetings by Type
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="chart-container" style="position: relative; height: 300px;">
                     <canvas id="meetingsByTypeChart"></canvas>
                 </div>
             </div>
@@ -129,22 +141,18 @@
     </div>
 
     <!-- Meetings by Department Chart -->
-    <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Meetings by Department</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
-                        <i class="bi bi-three-dots-vertical fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                        <a class="dropdown-item" href="#" onclick="refreshChart('meetingsByDepartment')">Refresh</a>
-                        <a class="dropdown-item" href="#" onclick="downloadChart('meetingsByDepartmentChart')">Download</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-area">
+    <div class="column is-6">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <span class="icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </span>
+                    Meetings by Department
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="chart-container" style="position: relative; height: 300px;">
                     <canvas id="meetingsByDepartmentChart"></canvas>
                 </div>
             </div>
@@ -152,21 +160,26 @@
     </div>
 </div>
 
-<!-- Monthly Trend and Activity -->
-<div class="row mb-4">
+<!-- Monthly Trend and Active Departments -->
+<div class="columns mb-6">
     <!-- Monthly Meeting Trend -->
-    <div class="col-xl-8 col-lg-7">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Monthly Meeting Trend</h6>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-secondary" onclick="changeTrendPeriod('6m')">6M</button>
-                    <button type="button" class="btn btn-outline-secondary active" onclick="changeTrendPeriod('1y')">1Y</button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="changeTrendPeriod('all')">All</button>
+    <div class="column is-8">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <span class="icon">
+                        <i class="fas fa-chart-line"></i>
+                    </span>
+                    Monthly Meeting Trend
+                </p>
+                <div class="buttons are-small">
+                    <button class="button is-outlined" onclick="changeTrendPeriod('6m')">6M</button>
+                    <button class="button is-info" onclick="changeTrendPeriod('1y')">1Y</button>
+                    <button class="button is-outlined" onclick="changeTrendPeriod('all')">All</button>
                 </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-area">
+            </header>
+            <div class="card-content">
+                <div class="chart-container">
                     <canvas id="monthlyTrendChart"></canvas>
                 </div>
             </div>
@@ -174,152 +187,188 @@
     </div>
 
     <!-- Most Active Departments -->
-    <div class="col-xl-4 col-lg-5">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Most Active Departments</h6>
-            </div>
-            <div class="card-body">
-                <div id="activeDepartmentsList">
-                    @if (Model?.MostActiveDepartments != null && Model.MostActiveDepartments.Rows.Count > 0)
+    <div class="column is-4">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <span class="icon">
+                        <i class="fas fa-trophy"></i>
+                    </span>
+                    Most Active Departments
+                </p>
+            </header>
+            <div class="card-content">
+                @if (Model?.MostActiveDepartments != null && Model.MostActiveDepartments.Rows.Count > 0)
+                {
+                    int rank = 1;
+                    foreach (System.Data.DataRow row in Model.MostActiveDepartments.Rows)
                     {
-                        int rank = 1;
-                        foreach (System.Data.DataRow row in Model.MostActiveDepartments.Rows)
-                        {
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0">
-                                    <div class="bg-primary rounded-circle p-2 text-white" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                        <div class="media mb-4">
+                            <div class="media-left">
+                                <figure class="image is-32x32">
+                                    <div class="tag is-primary is-rounded" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                                         @rank
                                     </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <div class="fw-bold">@row["DepartmentName"]</div>
-                                    <div class="text-muted small">@row["MeetingCount"] meetings</div>
-                                </div>
+                                </figure>
                             </div>
-                            rank++;
-                        }
+                            <div class="media-content">
+                                <p class="has-text-weight-semibold">@row["DepartmentName"]</p>
+                                <p class="has-text-grey is-size-7">@row["MeetingCount"] meetings</p>
+                            </div>
+                        </div>
+                        rank++;
                     }
-                    else
-                    {
-                        <p class="text-muted text-center">No data available</p>
-                    }
-                </div>
+                }
+                else
+                {
+                    <div class="has-text-centered py-4">
+                        <span class="icon has-text-grey">
+                            <i class="fas fa-inbox fa-2x"></i>
+                        </span>
+                        <p class="has-text-grey">No data available</p>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
 
 <!-- Recent and Upcoming Meetings -->
-<div class="row">
+<div class="columns">
     <!-- Recent Meetings -->
-    <div class="col-xl-6 col-lg-6 mb-4">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Recent Meetings</h6>
-            </div>
-            <div class="card-body">
+    <div class="column is-6">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <span class="icon">
+                        <i class="fas fa-clock"></i>
+                    </span>
+                    Recent Meetings
+                </p>
+            </header>
+            <div class="card-content">
                 @if (Model?.RecentMeetings != null && Model.RecentMeetings.Rows.Count > 0)
                 {
-                    <div class="table-responsive">
-                        <table class="table table-borderless">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Meeting</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (System.Data.DataRow row in Model.RecentMeetings.Rows)
-                                {
-                                    <tr>
-                                        <td>
-                                            <small>@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd")</small><br>
-                                            <small class="text-muted">@Convert.ToDateTime(row["MeetingDate"]).ToString("HH:mm")</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold">@row["MeetingDescription"]</div>
-                                            <small class="text-muted">@row["DepartmentName"]</small>
-                                        </td>
-                                        <td><span class="badge bg-info">@row["MeetingTypeName"]</span></td>
-                                        <td>
+                    foreach (System.Data.DataRow row in Model.RecentMeetings.Rows)
+                    {
+                        <div class="box is-small mb-3">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="has-text-weight-semibold">@row["MeetingDescription"]</p>
+                                    <p class="has-text-grey is-size-7">@row["DepartmentName"]</p>
+                                    <div class="level is-mobile mt-2">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                <span class="icon is-small">
+                                                    <i class="fas fa-calendar"></i>
+                                                </span>
+                                                <small>@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd, HH:mm")</small>
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
                                             @if (Convert.ToBoolean(row["IsCancelled"]))
                                             {
-                                                <span class="badge bg-danger">Cancelled</span>
+                                                <span class="tag is-danger">Cancelled</span>
                                             }
                                             else if (Convert.ToDateTime(row["MeetingDate"]) < DateTime.Now)
                                             {
-                                                <span class="badge bg-success">Completed</span>
+                                                <span class="tag is-success">Completed</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-warning">Upcoming</span>
+                                                <span class="tag is-warning">Upcoming</span>
                                             }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 }
                 else
                 {
-                    <p class="text-muted text-center">No recent meetings found</p>
+                    <div class="has-text-centered py-4">
+                        <span class="icon has-text-grey">
+                            <i class="fas fa-history fa-2x"></i>
+                        </span>
+                        <p class="has-text-grey">No recent meetings found</p>
+                    </div>
                 }
             </div>
         </div>
     </div>
 
     <!-- Upcoming Meetings -->
-    <div class="col-xl-6 col-lg-6 mb-4">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Upcoming Meetings</h6>
-            </div>
-            <div class="card-body">
+    <div class="column is-6">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <span class="icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </span>
+                    Upcoming Meetings
+                </p>
+                <a href="@Url.Action("Create", "Meeting")" class="card-header-icon">
+                    <span class="icon has-text-success">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                </a>
+            </header>
+            <div class="card-content">
                 @if (Model?.UpcomingMeetingsList != null && Model.UpcomingMeetingsList.Rows.Count > 0)
                 {
-                    <div class="table-responsive">
-                        <table class="table table-borderless">
-                            <thead>
-                                <tr>
-                                    <th>Date & Time</th>
-                                    <th>Meeting</th>
-                                    <th>Venue</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (System.Data.DataRow row in Model.UpcomingMeetingsList.Rows)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div class="fw-bold">@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd")</div>
-                                            <small class="text-muted">@Convert.ToDateTime(row["MeetingDate"]).ToString("HH:mm")</small>
-                                        </td>
-                                        <td>
-                                            <div>@row["MeetingDescription"]</div>
-                                            <small class="text-muted">@row["DepartmentName"]</small>
-                                        </td>
-                                        <td>
-                                            <small>@row["MeetingVenueName"]</small>
-                                        </td>
-                                        <td>
-                                            <a href="/Meeting/Details/@row["MeetingID"]" class="btn btn-sm btn-outline-primary">
-                                                View
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                    foreach (System.Data.DataRow row in Model.UpcomingMeetingsList.Rows)
+                    {
+                        <div class="box is-small mb-3">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="has-text-weight-semibold">@row["MeetingDescription"]</p>
+                                    <p class="has-text-grey is-size-7">@row["DepartmentName"]</p>
+                                    <div class="level is-mobile mt-2">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                <span class="icon is-small">
+                                                    <i class="fas fa-calendar"></i>
+                                                </span>
+                                                <small>@Convert.ToDateTime(row["MeetingDate"]).ToString("MMM dd, HH:mm")</small>
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                <span class="icon is-small">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                </span>
+                                                <small>@row["MeetingVenueName"]</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="media-right">
+                                    <a href="/Meeting/Details/@row["MeetingID"]" class="button is-small is-info is-outlined">
+                                        <span class="icon">
+                                            <i class="fas fa-eye"></i>
+                                        </span>
+                                        <span>View</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 }
                 else
                 {
-                    <p class="text-muted text-center">No upcoming meetings scheduled</p>
+                    <div class="has-text-centered py-4">
+                        <span class="icon has-text-grey">
+                            <i class="fas fa-calendar-plus fa-2x"></i>
+                        </span>
+                        <p class="has-text-grey">No upcoming meetings scheduled</p>
+                        <a href="@Url.Action("Create", "Meeting")" class="button is-primary is-small mt-3">
+                            <span class="icon">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span>Schedule Meeting</span>
+                        </a>
+                    </div>
                 }
             </div>
         </div>
@@ -330,7 +379,7 @@
     <script>
         let charts = {};
 
-        // Pre-load chart data from server (no AJAX needed on initial load)
+        // Pre-load chart data from server
         const chartDataRaw = {
             meetingsByType: @Html.Raw(ViewBag.MeetingsByTypeJson ?? "[]"),
             meetingsByDepartment: @Html.Raw(ViewBag.MeetingsByDepartmentJson ?? "[]"),
@@ -353,15 +402,15 @@
             Count: parseInt(item.Count) || 0
         }));
 
-        $(document).ready(function() {
-            // Wait for Chart.js to load (since it's deferred)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for Chart.js to load
             if (typeof Chart === 'undefined') {
                 setTimeout(initializeCharts, 100);
             } else {
                 initializeCharts();
             }
 
-            // Auto-refresh stats only (not full page) every 60 seconds instead of 30
+            // Auto-refresh stats every 60 seconds
             setInterval(refreshQuickStats, 60000);
         });
 
@@ -371,53 +420,40 @@
                 setTimeout(initializeCharts, 100);
                 return;
             }
-            // Meetings by Type - Pie Chart (using pre-loaded data)
-            const meetingsByTypeCtx = document.getElementById('meetingsByTypeChart').getContext('2d');
-            charts.meetingsByType = new Chart(meetingsByTypeCtx, {
-                type: 'doughnut',
-                data: {
+
+            // Meetings by Type - Doughnut Chart
+            const meetingsByTypeCtx = document.getElementById('meetingsByTypeChart');
+            if (meetingsByTypeCtx) {
+                charts.meetingsByType = window.UIManager.createChart('meetingsByTypeChart', 'doughnut', {
                     labels: meetingsByTypeData.map(x => x.MeetingTypeName),
                     datasets: [{
                         data: meetingsByTypeData.map(x => x.Count),
                         backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b',
-                            '#858796'
+                            '#00d1b2',
+                            '#48c774',
+                            '#3298dc',
+                            '#ffdd57',
+                            '#ff3860',
+                            '#b86bff'
                         ],
-                        borderWidth: 1
+                        borderWidth: 2
                     }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
+                });
+            }
 
-            // Meetings by Department - Bar Chart (using pre-loaded data)
-            const meetingsByDeptCtx = document.getElementById('meetingsByDepartmentChart').getContext('2d');
-            charts.meetingsByDepartment = new Chart(meetingsByDeptCtx, {
-                type: 'bar',
-                data: {
+            // Meetings by Department - Bar Chart
+            const meetingsByDeptCtx = document.getElementById('meetingsByDepartmentChart');
+            if (meetingsByDeptCtx) {
+                charts.meetingsByDepartment = window.UIManager.createChart('meetingsByDepartmentChart', 'bar', {
                     labels: meetingsByDepartmentData.map(x => x.DepartmentName),
                     datasets: [{
                         label: 'Number of Meetings',
                         data: meetingsByDepartmentData.map(x => x.Count),
-                        backgroundColor: '#4e73df',
-                        borderColor: '#4e73df',
+                        backgroundColor: '#00d1b2',
+                        borderColor: '#00b89c',
                         borderWidth: 1
                     }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                }, {
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -426,28 +462,24 @@
                             }
                         }
                     }
-                }
-            });
+                });
+            }
 
-            // Monthly Trend - Line Chart (using pre-loaded data)
-            const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
-            charts.monthlyTrend = new Chart(monthlyTrendCtx, {
-                type: 'line',
-                data: {
+            // Monthly Trend - Line Chart
+            const monthlyTrendCtx = document.getElementById('monthlyTrendChart');
+            if (monthlyTrendCtx) {
+                charts.monthlyTrend = window.UIManager.createChart('monthlyTrendChart', 'line', {
                     labels: monthlyTrendData.map(x => x.Month),
                     datasets: [{
                         label: 'Meetings',
                         data: monthlyTrendData.map(x => x.Count),
-                        borderColor: '#4e73df',
-                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderColor: '#00d1b2',
+                        backgroundColor: 'rgba(0, 209, 178, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4
                     }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                }, {
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -456,77 +488,83 @@
                             }
                         }
                     }
-                }
-            });
-        }
-
-        // Chart data is now loaded inline - no separate AJAX calls needed!
-
-        function refreshQuickStats() {
-            $.get('/Dashboard/QuickStats', function(response) {
-                if (!response.error) {
-                    $('#totalMeetingsStat').text(response.totalMeetings);
-                    $('#upcomingMeetingsStat').text(response.upcomingMeetings);
-                    $('#completedMeetingsStat').text(response.completedMeetings || 0);
-                    $('#cancelledMeetingsStat').text(response.cancelledMeetings || 0);
-                }
-            });
-        }
-
-        function refreshChart(chartType) {
-            switch(chartType) {
-                case 'meetingsByType':
-                    $.get('/Dashboard/GetChartData?charttype=meetingsbytype', function(response) {
-                        if (!response.error && Array.isArray(response)) {
-                            charts.meetingsByType.data.labels = response.map(item => item.MeetingTypeName);
-                            charts.meetingsByType.data.datasets[0].data = response.map(item => item.Count);
-                            charts.meetingsByType.update();
-                        }
-                    });
-                    break;
-                case 'meetingsByDepartment':
-                    $.get('/Dashboard/GetChartData?charttype=meetingsbydepartment', function(response) {
-                        if (!response.error && Array.isArray(response)) {
-                            charts.meetingsByDepartment.data.labels = response.map(item => item.DepartmentName);
-                            charts.meetingsByDepartment.data.datasets[0].data = response.map(item => item.Count);
-                            charts.meetingsByDepartment.update();
-                        }
-                    });
-                    break;
+                });
             }
         }
 
+        function refreshQuickStats() {
+            fetch('/Dashboard/QuickStats')
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.error) {
+                        document.getElementById('totalMeetingsStat').textContent = response.totalMeetings;
+                        document.getElementById('upcomingMeetingsStat').textContent = response.upcomingMeetings;
+                        document.getElementById('completedMeetingsStat').textContent = response.completedMeetings || 0;
+                        document.getElementById('cancelledMeetingsStat').textContent = response.cancelledMeetings || 0;
+                    }
+                })
+                .catch(error => console.error('Error refreshing stats:', error));
+        }
+
+        function refreshChart(chartType) {
+            const endpoint = chartType === 'meetingsByType' ?
+                '/Dashboard/GetChartData?charttype=meetingsbytype' :
+                '/Dashboard/GetChartData?charttype=meetingsbydepartment';
+
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.error && Array.isArray(response)) {
+                        const chart = charts[chartType];
+                        chart.data.labels = chartType === 'meetingsByType' ?
+                            response.map(item => item.MeetingTypeName) :
+                            response.map(item => item.DepartmentName);
+                        chart.data.datasets[0].data = response.map(item => item.Count);
+                        chart.update();
+                    }
+                })
+                .catch(error => console.error('Error refreshing chart:', error));
+        }
+
         function refreshDashboard() {
-            location.reload();
+            window.location.reload();
         }
 
         function changeTrendPeriod(period) {
             // Update button states
-            $('.btn-group .btn').removeClass('active');
-            $(event.target).addClass('active');
-
-            // Reload trend data with period filter
-            $.get('/Dashboard/GetChartData?charttype=monthlytrend&period=' + period, function(response) {
-                if (!response.error && Array.isArray(response)) {
-                    charts.monthlyTrend.data.labels = response.map(item => item.Month);
-                    charts.monthlyTrend.data.datasets[0].data = response.map(item => item.Count);
-                    charts.monthlyTrend.update();
-                }
+            document.querySelectorAll('.card-header .button').forEach(btn => {
+                btn.classList.remove('is-info');
+                btn.classList.add('is-outlined');
             });
+            event.target.classList.remove('is-outlined');
+            event.target.classList.add('is-info');
+
+            // Reload trend data
+            fetch('/Dashboard/GetChartData?charttype=monthlytrend&period=' + period)
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.error && Array.isArray(response)) {
+                        charts.monthlyTrend.data.labels = response.map(item => item.Month);
+                        charts.monthlyTrend.data.datasets[0].data = response.map(item => item.Count);
+                        charts.monthlyTrend.update();
+                    }
+                })
+                .catch(error => console.error('Error changing trend period:', error));
         }
 
         function downloadChart(chartId) {
             const canvas = document.getElementById(chartId);
-            const url = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = chartId + '_' + new Date().toISOString().slice(0, 10) + '.png';
-            link.href = url;
-            link.click();
+            if (canvas) {
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = chartId + '_' + new Date().toISOString().slice(0, 10) + '.png';
+                link.href = url;
+                link.click();
+            }
         }
 
         function exportDashboard() {
-            // In a real implementation, this would generate a comprehensive report
-            alert('Dashboard export functionality would generate a PDF report with all charts and statistics.');
+            window.UIManager.showNotification('Dashboard export functionality would generate a comprehensive PDF report with all charts and statistics.', 'info');
         }
     </script>
 }
