@@ -46,7 +46,7 @@ namespace MinuteOfMeeting.Helpers
                         }
                         else
                         {
-                            cell.Value = value;
+                            cell.Value = (XLCellValue)value;
                         }
 
                         // Add border to data cells
@@ -169,7 +169,7 @@ namespace MinuteOfMeeting.Helpers
                         }
                         else
                         {
-                            cell.Value = value ?? "";
+                            cell.Value = (XLCellValue)(value ?? "");
                         }
 
                         // Add border
@@ -294,7 +294,7 @@ namespace MinuteOfMeeting.Helpers
                         for (int col = 0; col < table.Value.Columns.Count; col++)
                         {
                             var cell = worksheet.Cell(row + 2, col + 1);
-                            cell.Value = table.Value.Rows[row][col] ?? "";
+                            cell.Value = (XLCellValue)(table.Value.Rows[row][col] ?? "");
                         }
                     }
 
