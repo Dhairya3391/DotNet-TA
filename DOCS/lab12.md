@@ -1,38 +1,49 @@
-# Prepare Stored Procedure for Insert, Update and Delete Command
+# Stored Procedures for Insert, Update, and Delete
 
 ## 1. Description
-Stored procedures for Insert, Update, and Delete operations encapsulate data modification logic within the database. These procedures provide a secure, efficient way to modify data while maintaining data integrity, implementing business rules, and improving performance through pre-compilation and reduced network traffic.
+This document provides a practical guide to creating and using **stored procedures (SPs)** in SQL Server for the fundamental **CRUD (Create, Read, Update, Delete)** operations. Stored procedures encapsulate SQL logic on the database server, offering significant benefits in security, performance, and maintainability.
+
+- **Insert (Create):** Adds a new record to a table.
+- **Update:** Modifies an existing record.
+- **Delete:** Removes a record from a table.
 
 ## 2. Why It Is Important
-Stored procedures for CRUD operations are essential for maintaining data consistency, security, and performance. They centralize business logic, prevent SQL injection attacks, improve performance through execution plan reuse, and provide a consistent interface for data modifications across different applications.
+Using stored procedures for data modification is a best practice for several reasons:
+- **Security:** It helps prevent SQL injection attacks. Applications are given permission to execute the stored procedure, not to perform direct `INSERT`, `UPDATE`, or `DELETE` operations on the tables.
+- **Performance:** Stored procedures are pre-compiled and their execution plans are cached by the database, leading to faster performance.
+- **Data Integrity:** You can embed business rules and data validation logic directly into the stored procedure, ensuring that no invalid data is ever written to your tables.
+- **Maintainability:** If your data modification logic needs to change, you only have to update the stored procedure in one place, rather than updating every application that interacts with the database.
+- **Reduced Network Traffic:** The application only needs to send the procedure name and its parameters, not a potentially long and complex SQL query.
 
 ## 3. Real-World Examples
-- Student management system inserting new student records, updating contact information, and deleting graduated students
-- E-commerce platform adding products, updating inventory levels, and removing discontinued items
-- Healthcare application registering patients, updating medical records, and archiving old records
-- Banking system creating accounts, updating balances, and closing inactive accounts
-- Inventory management adding stock items, updating quantities, and removing expired products
-- HR management hiring employees, updating salary information, and processing resignations
+- An e-commerce site using a `usp_CreateOrder` stored procedure to ensure that when a new order is created, the inventory is also updated within the same transaction.
+- A student management system using a `usp_UpdateStudentAddress` SP to modify a student's address, which might also trigger a logging mechanism for auditing purposes.
+- A banking application using a `usp_SoftDeleteAccount` SP to deactivate a bank account instead of permanently deleting it, preserving the transaction history.
 
-## 4. Syntax & Explanation
+## 4. Syntax & Explanation (T-SQL for SQL Server)
+
+This example uses a common database schema with `Country`, `State`, and `City` tables to demonstrate CRUD stored procedures.
 
 ### Insert Stored Procedures
+These procedures add new records and typically return the ID of the newly created record via an `OUTPUT` parameter.
 
 ```sql
--- Insert Country
+-- Insert a new Country
 CREATE PROCEDURE usp_Country_Insert
     @CountryName NVARCHAR(100),
     @CountryCode NVARCHAR(10),
     @NewId INT OUTPUT
 AS
 BEGIN
+    SET NOCOUNT ON;
     INSERT INTO Country (CountryName, CountryCode, CreatedDate)
     VALUES (@CountryName, @CountryCode, GETDATE());
 
     SET @NewId = SCOPE_IDENTITY();
 END;
+GO
 
--- Insert State
+-- Insert a new State
 CREATE PROCEDURE usp_State_Insert
     @StateName NVARCHAR(100),
     @StateCode NVARCHAR(10),
@@ -40,46 +51,36 @@ CREATE PROCEDURE usp_State_Insert
     @NewId INT OUTPUT
 AS
 BEGIN
+    SET NOCOUNT ON;
     INSERT INTO State (StateName, StateCode, CountryId, CreatedDate)
     VALUES (@StateName, @StateCode, @CountryId, GETDATE());
 
     SET @NewId = SCOPE_IDENTITY();
 END;
-
--- Insert City
-CREATE PROCEDURE usp_City_Insert
-    @CityName NVARCHAR(100),
-    @CityCode NVARCHAR(10),
-    @StateId INT,
-    @PinCode NVARCHAR(10),
-    @NewId INT OUTPUT
-AS
-BEGIN
-    INSERT INTO City (CityName, CityCode, StateId, PinCode, CreatedDate)
-    VALUES (@CityName, @CityCode, @StateId, @PinCode, GETDATE());
-
-    SET @NewId = SCOPE_IDENTITY();
-END;
+GO
 ```
 
 ### Update Stored Procedures
+These procedures find an existing record by its primary key and modify its data.
 
 ```sql
--- Update Country
+-- Update an existing Country
 CREATE PROCEDURE usp_Country_Update
     @CountryId INT,
     @CountryName NVARCHAR(100),
     @CountryCode NVARCHAR(10)
 AS
 BEGIN
+    SET NOCOUNT ON;
     UPDATE Country
     SET CountryName = @CountryName,
         CountryCode = @CountryCode,
         UpdatedDate = GETDATE()
     WHERE CountryId = @CountryId;
 END;
+GO
 
--- Update State
+-- Update an existing State
 CREATE PROCEDURE usp_State_Update
     @StateId INT,
     @StateName NVARCHAR(100),
@@ -87,6 +88,7 @@ CREATE PROCEDURE usp_State_Update
     @CountryId INT
 AS
 BEGIN
+    SET NOCOUNT ON;
     UPDATE State
     SET StateName = @StateName,
         StateCode = @StateCode,
@@ -94,281 +96,108 @@ BEGIN
         UpdatedDate = GETDATE()
     WHERE StateId = @StateId;
 END;
-
--- Update City
-CREATE PROCEDURE usp_City_Update
-    @CityId INT,
-    @CityName NVARCHAR(100),
-    @CityCode NVARCHAR(10),
-    @StateId INT,
-    @PinCode NVARCHAR(10)
-AS
-BEGIN
-    UPDATE City
-    SET CityName = @CityName,
-        CityCode = @CityCode,
-        StateId = @StateId,
-        PinCode = @PinCode,
-        UpdatedDate = GETDATE()
-    WHERE CityId = @CityId;
-END;
+GO
 ```
 
 ### Delete Stored Procedures
+These procedures remove records. It's often safer to implement a "soft delete" (marking a record as inactive) rather than a "hard delete" (permanently removing the record).
 
 ```sql
--- Delete Country
+-- Hard Delete: Permanently removes the record
 CREATE PROCEDURE usp_Country_Delete
     @CountryId INT
 AS
 BEGIN
+    SET NOCOUNT ON;
+    -- Be cautious: this permanently removes the data.
+    -- You might want to check for related records in other tables first.
     DELETE FROM Country WHERE CountryId = @CountryId;
 END;
+GO
 
--- Delete State
-CREATE PROCEDURE usp_State_Delete
+-- Soft Delete: Marks the record as inactive
+CREATE PROCEDURE usp_State_Deactivate
     @StateId INT
 AS
 BEGIN
-    DELETE FROM State WHERE StateId = @StateId;
+    SET NOCOUNT ON;
+    UPDATE State
+    SET IsActive = 0, -- Assuming an 'IsActive' bit column exists
+        UpdatedDate = GETDATE()
+    WHERE StateId = @StateId;
 END;
-
--- Delete City
-CREATE PROCEDURE usp_City_Delete
-    @CityId INT
-AS
-BEGIN
-    DELETE FROM City WHERE CityId = @CityId;
-END;
+GO
 ```
 
-### C# Implementation for Calling Stored Procedures
-
+### C# Implementation for Calling Stored Procedures (ADO.NET)
 ```csharp
 using Microsoft.Data.SqlClient;
 using System.Data;
 
-public class AddressBookRepository
+public class CountryRepository
 {
     private readonly string _connectionString;
 
-    public AddressBookRepository(string connectionString)
+    public CountryRepository(string connectionString)
     {
         _connectionString = connectionString;
     }
 
-    // Country Operations
-    public async Task<(int CountryId, string Message)> InsertCountryAsync(string countryName, string countryCode)
+    public async Task<int> InsertCountryAsync(string countryName, string countryCode)
     {
-        try
+        using (var connection = new SqlConnection(_connectionString))
         {
-            using (var connection = new SqlConnection(_connectionString))
+            await connection.OpenAsync();
+            using (var command = new SqlCommand("usp_Country_Insert", connection))
             {
-                await connection.OpenAsync();
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@CountryName", countryName);
+                command.Parameters.AddWithValue("@CountryCode", countryCode);
+                
+                var newIdParam = new SqlParameter("@NewId", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                command.Parameters.Add(newIdParam);
 
-                using (var command = new SqlCommand("usp_Country_Insert", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    command.Parameters.AddWithValue("@CountryName", countryName);
-                    command.Parameters.AddWithValue("@CountryCode", countryCode);
-
-                    var newIdParam = new SqlParameter("@NewId", SqlDbType.Int)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(newIdParam);
-
-                    var returnParam = new SqlParameter
-                    {
-                        Direction = ParameterDirection.ReturnValue
-                    };
-                    command.Parameters.Add(returnParam);
-
-                    await command.ExecuteNonQueryAsync();
-
-                    int returnValue = (int)returnParam.Value;
-                    int newId = (int)newIdParam.Value;
-
-                    if (returnValue == 0)
-                    {
-                        return (newId, "Country inserted successfully");
-                    }
-                    else
-                    {
-                        return (0, "Failed to insert country");
-                    }
-                }
+                await command.ExecuteNonQueryAsync();
+                return (int)newIdParam.Value;
             }
         }
-        catch (Exception ex)
-        {
-            return (0, $"Error: {ex.Message}");
-        }
     }
 
-    public async Task<string> UpdateCountryAsync(int countryId, string countryName, string countryCode)
+    public async Task UpdateCountryAsync(int countryId, string countryName, string countryCode)
     {
-        try
+        using (var connection = new SqlConnection(_connectionString))
         {
-            using (var connection = new SqlConnection(_connectionString))
+            await connection.OpenAsync();
+            using (var command = new SqlCommand("usp_Country_Update", connection))
             {
-                await connection.OpenAsync();
-
-                using (var command = new SqlCommand("usp_Country_Update", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    command.Parameters.AddWithValue("@CountryId", countryId);
-                    command.Parameters.AddWithValue("@CountryName", countryName);
-                    command.Parameters.AddWithValue("@CountryCode", countryCode);
-
-                    var returnParam = new SqlParameter
-                    {
-                        Direction = ParameterDirection.ReturnValue
-                    };
-                    command.Parameters.Add(returnParam);
-
-                    await command.ExecuteNonQueryAsync();
-
-                    int returnValue = (int)returnParam.Value;
-
-                    return returnValue == 0 ? "Country updated successfully" : "Failed to update country";
-                }
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@CountryId", countryId);
+                command.Parameters.AddWithValue("@CountryName", countryName);
+                command.Parameters.AddWithValue("@CountryCode", countryCode);
+                await command.ExecuteNonQueryAsync();
             }
         }
-        catch (Exception ex)
-        {
-            return $"Error: {ex.Message}";
-        }
     }
-
-    public async Task<string> DeleteCountryAsync(int countryId)
+    
+    public async Task DeleteCountryAsync(int countryId)
     {
-        try
+        using (var connection = new SqlConnection(_connectionString))
         {
-            using (var connection = new SqlConnection(_connectionString))
+            await connection.OpenAsync();
+            using (var command = new SqlCommand("usp_Country_Delete", connection))
             {
-                await connection.OpenAsync();
-
-                using (var command = new SqlCommand("usp_Country_Delete", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    command.Parameters.AddWithValue("@CountryId", countryId);
-
-                    var returnParam = new SqlParameter
-                    {
-                        Direction = ParameterDirection.ReturnValue
-                    };
-                    command.Parameters.Add(returnParam);
-
-                    await command.ExecuteNonQueryAsync();
-
-                    int returnValue = (int)returnParam.Value;
-
-                    return returnValue == 0 ? "Country deleted successfully" : "Failed to delete country";
-                }
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@CountryId", countryId);
+                await command.ExecuteNonQueryAsync();
             }
         }
-        catch (Exception ex)
-        {
-            return $"Error: {ex.Message}";
-        }
-    }
-
-    // Similar methods for State and City operations...
-}
-
-// Usage in Controller
-public class CountryController : Controller
-{
-    private readonly AddressBookRepository _repository;
-
-    public CountryController(AddressBookRepository repository)
-    {
-        _repository = repository;
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(string countryName, string countryCode)
-    {
-        var (countryId, message) = await _repository.InsertCountryAsync(countryName, countryCode);
-
-        if (countryId > 0)
-        {
-            TempData["Success"] = message;
-            return RedirectToAction(nameof(Index));
-        }
-        else
-        {
-            TempData["Error"] = message;
-            return RedirectToAction(nameof(Create));
-        }
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Edit(int countryId, string countryName, string countryCode)
-    {
-        var message = await _repository.UpdateCountryAsync(countryId, countryName, countryCode);
-
-        if (message.Contains("successfully"))
-        {
-            TempData["Success"] = message;
-        }
-        else
-        {
-            TempData["Error"] = message;
-        }
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Delete(int countryId)
-    {
-        var message = await _repository.DeleteCountryAsync(countryId);
-
-        if (message.Contains("successfully"))
-        {
-            TempData["Success"] = message;
-        }
-        else
-        {
-            TempData["Error"] = message;
-        }
-
-        return RedirectToAction(nameof(Index));
     }
 }
 ```
 
-## 5. Use Cases
-
-- **Address Book Systems**: Managing countries, states, and cities in contact directories
-- **E-commerce Platforms**: Product categorization and regional shipping zones
-- **Healthcare Systems**: Patient location data and hospital network management
-- **Educational Institutions**: Campus locations and regional center management
-- **Travel Applications**: Destination management and booking systems
-- **Logistics Companies**: Regional distribution centers and route planning
-- **Government Services**: Administrative divisions and public service locations
-
-## 6. Mini Practice Task
-
-1. **Basic CRUD Stored Procedures**:
-   - Create Insert, Update, and Delete stored procedures for a Products table
-   - Include proper validation and error handling
-   - Test the procedures using SQL Server Management Studio
-
-2. **Enhanced Stored Procedures**:
-   - Add transaction handling for complex operations
-   - Implement soft delete functionality
-   - Add audit logging for all modifications
-   - Include output parameters for returning additional information
-
-3. **Advanced Features**:
-   - Create stored procedures for bulk operations (bulk insert, update, delete)
-   - Implement conditional updates based on business rules
-   - Add table-valued parameters for passing multiple records
-   - Create procedures with optional parameters for flexible operations
-   - Implement retry logic for handling deadlocks and timeouts
+## 5. Mini Practice Task
+1.  **Create a Table:** Create a simple `Departments` table with columns for `DepartmentId`, `Name`, and `IsActive`.
+2.  **Write Insert SP:** Create a stored procedure `usp_Department_Insert` that adds a new department and returns its new `DepartmentId`.
+3.  **Write Update SP:** Create `usp_Department_Update` to change the `Name` of an existing department.
+4.  **Write "Soft Delete" SP:** Create `usp_Department_Deactivate` to set the `IsActive` flag to `0` for a given `DepartmentId`.
+5.  **Test:** Execute each stored procedure in your database management tool to verify they work correctly.
