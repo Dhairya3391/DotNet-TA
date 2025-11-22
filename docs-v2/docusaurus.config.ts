@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: "https://your-docusaurus-site.example.com",
+  url: "https://dotnet.noobokay.me",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -43,7 +43,7 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          // editUrl: "https://github.com/dhairya3391/DotNet-TA/tree/main/docs/",
+          editUrl: "https://github.com/dhairya3391/DotNet-TA/tree/main/docs/",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -100,16 +100,20 @@ const config: Config = {
         //   ],
         // },
         {
-          title: "Author",
+          title: "Authors",
           items: [
             {
               label: "harpalll",
               href: "https://github.com/harpalll",
             },
+            {
+              label: "Dhairya",
+              href: "https://github.com/dhairya3391",
+            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} DotNetTA. Built with Docusaurus by harpalll.`,
+      copyright: `Copyright © ${new Date().getFullYear()} DotNetTA. Built with Docusaurus by harpalll & Dhairya.`,
     },
     prism: {
       theme: prismThemes.github,
