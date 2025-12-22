@@ -1,6 +1,7 @@
 import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+import normalizeCodeBlockLang from "./src/remark/normalizeCodeBlockLang";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -33,6 +34,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
+          remarkPlugins: [normalizeCodeBlockLang],
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -64,12 +66,12 @@ const config: Config = {
     },
     footer: {
       style: "dark",
-      copyright: `Copyright © ${new Date().getFullYear()} DotNetTA. Built by Dhairya and Harpal.`,
+      copyright: `Copyright © ${new Date().getFullYear()} DotNetTA. Built by <a href="https://github.com/Dhairya3391" target="_blank" rel="noopener noreferrer">Dhairya</a> and <a href="https://github.com/harpalll" target="_blank" rel="noopener noreferrer">Harpal</a>.`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
-      additionalLanguages: ["csharp"],
+      additionalLanguages: ["csharp", "aspnet", "bash", "sql"],
     },
   } satisfies Preset.ThemeConfig,
 };
