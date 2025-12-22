@@ -2,8 +2,6 @@
 
 Welcome to .NET development! This comprehensive guide will walk you through setting up your development environment with .NET SDK and Visual Studio Code for .NET programming.
 
-_Made by [harpalll](https://github.com/harpalll)_
-
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
@@ -143,7 +141,6 @@ To make VS Code a powerful .NET IDE, you need to install essential extensions.
 
 - **.NET Runtime Install Tool** (`ms-dotnettools.vscode-dotnet-runtime`): Helps manage .NET runtimes
 - **IntelliCode for C# Dev Kit** (`ms-dotnettools.vscode-intellicode-csharp`): AI-assisted development
-- **GitLens** (`eamodio.gitlens`): Enhanced Git capabilities
 - **Prettier - Code formatter** (`esbenp.prettier-vscode`): Code formatting
 
 ## Creating Your First .NET Project
@@ -351,12 +348,8 @@ Congratulations! You now have a fully functional .NET development environment. H
 - [Official .NET Documentation](https://docs.microsoft.com/dotnet/)
 - [C# Programming Guide](https://docs.microsoft.com/dotnet/csharp/)
 - [VS Code Documentation](https://code.visualstudio.com/docs)
-- [.NET Samples on GitHub](https://github.com/dotnet/samples)
+- [.NET samples and tutorials](https://learn.microsoft.com/dotnet/samples-and-tutorials/)
 
 ---
 
-**Happy coding!** 🚀 You're now ready to start your journey into .NET development with a properly configured development environment.
-
----
-
-_Made with ❤️ by [harpalll](https://github.com/harpalll)_
+**Happy coding!** You're now ready to start your journey into .NET development.

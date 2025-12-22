@@ -14,16 +14,8 @@ const config: Config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
-  // Set the production url of your site here
   url: "https://dotnet.noobokay.me",
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
-
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: "harpalll", // Usually your GitHub org/user name.
-  projectName: "dotnet-TA", // Usually your repo name.
 
   onBrokenLinks: "throw",
 
@@ -41,9 +33,6 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/dhairya3391/DotNet-TA/tree/main/docs/",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -71,49 +60,11 @@ const config: Config = {
           position: "left",
           label: "Labs",
         },
-        {
-          href: "https://github.com/harpalll",
-          label: "GitHub",
-          position: "right",
-        },
       ],
     },
     footer: {
       style: "dark",
-      links: [
-        {
-          title: "Docs",
-          items: [
-            {
-              label: "Labs",
-              to: "/docs/lab1",
-            },
-          ],
-        },
-        // {
-        //   title: "Project",
-        //   items: [
-        //     {
-        //       label: "GitHub",
-        //       href: "https://github.com/harpalll",
-        //     },
-        //   ],
-        // },
-        {
-          title: "Authors",
-          items: [
-            {
-              label: "harpalll",
-              href: "https://github.com/harpalll",
-            },
-            {
-              label: "Dhairya",
-              href: "https://github.com/dhairya3391",
-            },
-          ],
-        },
-      ],
-      copyright: `Copyright © ${new Date().getFullYear()} DotNetTA. Built with Docusaurus by harpalll & Dhairya.`,
+      copyright: `Copyright © ${new Date().getFullYear()} DotNetTA. Built by Dhairya and Harpal.`,
     },
     prism: {
       theme: prismThemes.github,

@@ -25,16 +25,6 @@ function HomepageHeader() {
             Get Started with .NET 🚀
           </Link>
         </div>
-        <p className={styles.authorCredit}>
-          Built by{" "}
-          <a
-            href="https://github.com/harpalll"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            harpalll
-          </a>
-        </p>
       </div>
     </header>
   );

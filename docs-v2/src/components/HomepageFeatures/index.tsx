@@ -31,14 +31,12 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Built with ❤️ by harpalll & Dhairya',
+    title: 'Practice-Focused Learning',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Complete Docusaurus integration and documentation setup by
-        <a href="https://github.com/harpalll" target="_blank" rel="noopener noreferrer"> harpalll</a> &
-        <a href="https://github.com/dhairya3391" target="_blank" rel="noopener noreferrer"> Dhairya</a>.
-        Professional .NET documentation platform.
+        Hands-on exercises designed to build confidence through consistent
+        practice and clear outcomes.
       </>
     ),
   },
