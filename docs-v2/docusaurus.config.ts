@@ -6,8 +6,8 @@ import normalizeCodeBlockLang from "./src/remark/normalizeCodeBlockLang";
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: "dotnet - Training and Labs",
-  tagline: "Comprehensive .NET programming labs and tutorials",
+  title: "DotNetTA — .NET Labs & Training",
+  tagline: "Hands-on .NET labs (C#, ASP.NET, SQL) with clear steps and practice tasks.",
   favicon: "img/favicon.ico",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -46,13 +46,27 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: "img/docusaurus-social-card.jpg",
+    metadata: [
+      {
+        name: "description",
+        content:
+          "DotNetTA provides structured .NET training labs covering C#, ASP.NET MVC/Core concepts, Razor views, and SQL, with practical examples and mini tasks.",
+      },
+      {
+        name: "keywords",
+        content:
+          "DotNetTA,.NET,C#,CSharp,ASP.NET,ASP.NET Core,MVC,Razor,CSHTML,SQL,ADO.NET,Entity Framework,Lab,Tutorial,Training",
+      },
+      { property: "og:site_name", content: "DotNetTA" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
     colorMode: {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: "dotnet",
+      title: "DotNetTA",
       logo: {
-        alt: "dotnet Logo",
+        alt: "DotNetTA Logo",
         src: "img/logo.svg",
       },
       items: [

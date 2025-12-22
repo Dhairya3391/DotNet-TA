@@ -2,7 +2,7 @@
   "name": "docs-v-2",
   "version": "0.0.0",
   "private": true,
-  "description": "dotnet - Training and Labs documentation",
+  "description": "DotNetTA — .NET labs & training docs (C#, ASP.NET, SQL)",
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
